@@ -1,0 +1,23 @@
+DORMY - Campus Residence Portal
+Registration Verification Code
+==================================================
+
+Hello{% if user_name %} {{ user_name }}{% endif %},
+
+Thank you for registering with DORMY. To complete your account verification, please enter the One-Time Passcode (OTP) below:
+
+    VERIFICATION CODE: {{ otp_code }}
+
+[!] 5-MINUTE EXPIRATION NOTICE:
+This code is valid for 5 minutes only. After 5 minutes, it will expire and you will need to request a new code.
+
+[!] SECURITY REMINDER:
+- Never share this OTP with anyone, including dormitory personnel or student assistants.
+- DORMY staff will never ask for your verification code.
+- If you did not register for a DORMY account, please ignore this email.
+
+After verification, your registration will be reviewed by the Dorm Master for approval.
+
+==================================================
+Delivered by DORMY (joshua.t.jacinto@gmail.com)
+(c) 2026 DORMY Campus Residence Management. All rights reserved.

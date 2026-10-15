@@ -1,161 +1,176 @@
-{% load static %} 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | dormY</title>
+    <title>Sign In | dormY</title>
     
+    <!-- Bootstrap 5 & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/glassmorphism.css' %}">
 
     <style>
-        :root {
-          --navy-blue: #1b5e20;   /* dark green */
-          --soft-white: #ffffff;
-          --light-gray: #f4f7f6;
-          --accent: #4caf50;     /* lighter green accent */
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        body {
-          font-family: 'Poppins', sans-serif;
-          background-color: var(--soft-white);
-          color: #333;
-          min-height: 100vh;
-          margin: 0;
-          display: flex;
-          align-items: center;
-          position: relative;
-          overflow-x: hidden;
+        .auth-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: var(--radius-2xl);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(226, 232, 240, 0.6);
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 30%;
-            height: 100%;
-            background: var(--navy-blue);
-            z-index: -1;
-            clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
-        }
-
-        .brand-logo-text {
-          font-weight: 700;
-          letter-spacing: 3px;
-          color: var(--navy-blue);
-          font-size: 3.5rem;
-          text-transform: uppercase;
-        }
-
-        .login-card {
-          background: white;
-          border-radius: 20px;
-          box-shadow: 0 15px 35px rgba(27, 94, 32, 0.2);
-          border: 1px solid #eee;
-        }
-
-        .form-label {
-            color: var(--navy-blue);
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+            border-radius: var(--radius-pill);
+            color: var(--primary-700);
+            font-size: 0.8rem;
             font-weight: 600;
+            margin-bottom: 1.5rem;
         }
 
-        .form-control {
-          border-radius: 10px;
-          background-color: var(--light-gray) !important; 
-          border: 1px solid #ddd;
-          padding: 12px;
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.45;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .form-control:focus {
-            background-color: #fff !important;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.1);
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #60a5fa 0%, #3b82f6 100%);
+            top: -100px;
+            right: -100px;
         }
 
-        .btn-navy {
-          background-color: var(--navy-blue);
-          color: white;
-          border-radius: 10px;
-          font-weight: 600;
-          padding: 12px;
-          transition: 0.3s;
-        }
-
-        .btn-navy:hover {
-          background-color: var(--accent);
-          color: white;
-          transform: translateY(-2px);
-        }
-
-        .university-logo {
-            max-height: 200px;
-            width: auto;
-            margin-bottom: 20px;
-        }
-        
-        .sub-text {
-            color: #666;
-            font-size: 1.1rem;
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #38bdf8 0%, #0ea5e9 100%);
+            bottom: -80px;
+            left: -80px;
         }
     </style>
 </head>
 
 <body>
 
-<div class="container">
-    <div class="row align-items-center">
-        
-        <div class="col-lg-7 text-center text-lg-start ps-lg-5">
-            <img src="{% static 'images/logo.png' %}" alt="University Logo" class="university-logo">
-            <h1 class="brand-logo-text">dormY</h1>
-            <p class="sub-text">University Dormitory Portal</p>
-        </div>
+<div class="auth-wrapper">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
 
-        <div class="col-lg-5">
-            <div class="card login-card">
-                <div class="card-body p-5">
-                    <h3 class="text-center mb-4 fw-bold" style="color: var(--navy-blue);">Welcome Back</h3>
-
-                    {% if messages %}
-                        <div class="mb-3">
-                            {% for message in messages %}
-                                <div class="alert alert-danger text-center" role="alert">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-
-                     <form method="POST">
-                         {% csrf_token %}
-                         <input type="hidden" name="next" value="{{ next|default:'' }}">
-                         <div class="mb-3">
-                             <label class="form-label">Student ID / Dorm Master ID</label>
-                             <input type="text" name="username" class="form-control" placeholder="Enter your ID" required>
-                         </div>
-                         <div class="mb-4">
-                             <label class="form-label">Password</label>
-                             <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-                         </div>
-                         <div class="d-grid">
-                             <button type="submit" class="btn btn-navy btn-lg">Sign In</button>
-                         </div>
-                     </form>
-
-                     <div class="text-center mt-4">
-                         <p class="mb-0 text-muted">New student? 
-                             <a href="{% url 'users:register' %}" class="fw-bold text-decoration-none" style="color: var(--accent);">Register here</a>
-                         </p>
-                         <p class="mt-3 mb-0">
-                             <a href="{% url 'rooms:available_rooms' %}" class="text-decoration-none" style="color: var(--accent);">View available rooms</a>
-                         </p>
-                     </div>
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="row align-items-center justify-content-center">
+            
+            <!-- Left Branding Hero -->
+            <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0 px-lg-5">
+                <div class="brand-badge">
+                    <i class="fas fa-shield-alt"></i> Official Campus Portal
+                </div>
+                <div class="d-flex align-items-center justify-content-center justify-content-lg-start gap-3 mb-3">
+                    <img src="{% static 'images/logo.png' %}" alt="dormY Logo" style="height: 64px; width: auto; object-fit: contain;">
+                    <h1 class="display-4 fw-extrabold text-slate-900 mb-0 tracking-tight" style="color: var(--slate-900);">dormY</h1>
+                </div>
+                <p class="lead text-muted mb-4" style="max-width: 460px;">
+                    Experience seamless campus living. Manage room assignments, schedules, announcements, and dorm services in one unified platform.
+                </p>
+                <div class="d-none d-lg-flex gap-3">
+                    <a href="{% url 'rooms:available_rooms' %}" class="btn btn-glass px-4">
+                        <i class="fas fa-door-open me-2 text-primary"></i>Explore Available Rooms
+                    </a>
                 </div>
             </div>
-        </div>
 
+            <!-- Right Login Form Card -->
+            <div class="col-lg-5 col-md-8">
+                <div class="card auth-card">
+                    <div class="card-body p-4 p-sm-5">
+                        <div class="text-center mb-4">
+                            <h3 class="fw-bold text-slate-900 mb-1" style="color: var(--slate-900);">Welcome Back</h3>
+                            <p class="text-muted small">Sign in with your Student ID or Dorm Master credentials</p>
+                        </div>
+
+                        {% if messages %}
+                            <div class="mb-4">
+                                {% for message in messages %}
+                                    <div class="alert alert-danger text-center small py-2 mb-2" role="alert">
+                                        <i class="fas fa-exclamation-circle me-1"></i> {{ message }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ next|default:'' }}">
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Student ID / Account ID</label>
+                                <div class="input-group">
+                                    <input type="text" name="username" class="form-control" placeholder="e.g. 2024-00123" required autocomplete="username">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Password</label>
+                                    <a href="{% url 'users:forgot_password' %}" class="small text-primary text-decoration-none fw-semibold">
+                                        Forgot Password?
+                                    </a>
+                                </div>
+                                <div class="input-group">
+                                    <input type="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                                </div>
+                            </div>
+
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                                    Sign In <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center pt-2 border-top" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                            <p class="mb-2 text-muted small">
+                                Don't have an account yet? 
+                                <a href="{% url 'users:register' %}" class="fw-semibold text-primary text-decoration-none">
+                                    Register here
+                                </a>
+                            </p>
+                            <p class="mb-0 text-muted small">
+                                <a href="{% url 'rooms:available_rooms' %}" class="text-muted text-decoration-none">
+                                    <i class="fas fa-eye me-1"></i> View Available Rooms
+                                </a>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 

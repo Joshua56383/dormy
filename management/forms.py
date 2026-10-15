@@ -86,3 +86,35 @@ class DormMasterProfilePictureForm(forms.ModelForm):
         widgets = {
             'profile_picture': forms.FileInput(attrs={'class': 'form-control'}),
         }
+
+from rooms.models import Room
+
+class ResidentEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [
+            'student_id', 'first_name', 'middle_name', 'last_name',
+            'email', 'contact_number', 'course', 'year_level', 'age',
+            'assigned_room', 'payment_status', 'is_active', 'profile_picture'
+        ]
+        widgets = {
+            'student_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'middle_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'course': forms.TextInput(attrs={'class': 'form-control'}),
+            'year_level': forms.NumberInput(attrs={'class': 'form-control'}),
+            'age': forms.NumberInput(attrs={'class': 'form-control'}),
+            'assigned_room': forms.Select(attrs={'class': 'form-select'}),
+            'payment_status': forms.Select(attrs={'class': 'form-select'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'profile_picture': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['assigned_room'].queryset = Room.objects.all().order_by('room_number')
+        self.fields['assigned_room'].required = False
+        self.fields['profile_picture'].required = False

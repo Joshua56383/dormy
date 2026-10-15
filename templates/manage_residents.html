@@ -1,300 +1,124 @@
 {% extends 'basem.html' %}
 {% load static %}
 
-{% block title %}Manage Residents{% endblock %}
+{% block title %}Manage Residents | dormY Management{% endblock %}
 
 {% block content %}
-
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
 
-    <!-- Page Header -->
-    <div class="row mb-4 align-items-center">
-        <div class="col">
-            <h2 class="fw-bold text-dark mb-1">
-                <i class="fas fa-users text-primary me-2"></i>Resident Management
-            </h2>
-            <p class="text-muted mb-0">
-                View and manage all student residents.
-            </p>
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Resident Management</h2>
+                    <p class="text-white-50 mb-0 small">Access directory of all registered residents, emergency contacts, and account statuses.</p>
+                </div>
+            </div>
+            <div>
+                <span class="badge bg-white text-primary fw-semibold px-3 py-2 fs-6">
+                    {{ residents|length }} Residents Enrolled
+                </span>
+            </div>
         </div>
     </div>
 
-    <!-- RESIDENTS TABLE -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-light border-bottom p-3">
-            <h5 class="mb-0 fw-bold">
-                <i class="fas fa-list me-2 text-success"></i>All Residents
-            </h5>
-        </div>
-
-        <div class="card-body p-4">
-
-            <div class="table-responsive">
-                <table id="residentsTable" class="table table-hover align-middle">
-
-                    <thead class="table-light">
-                        <tr>
-                            <th>Name</th>
-                            <th>Room</th>
-                            <th>Contact</th>
-                            <th>Emergency Contact</th>
-                            <th>Relationship</th>
-                            <th>Emergency Phone</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {% for resident in residents %}
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    {% if resident.profile_picture %}
-                                        <img src="{{ resident.profile_picture.url }}" class="rounded-circle me-3 avatar-img" alt="{{ resident.full_name }}">
-                                    {% else %}
-                                        <div class="rounded-circle me-3 d-flex align-items-center justify-content-center avatar-placeholder">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                    {% endif %}
-                                    <div>
-                                        <div class="fw-bold">{{ resident.full_name }}</div>
-                                        <div class="text-muted small">{{ resident.email }}</div>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <td>
-                                {% if resident.assigned_room %}
-                                    <span class="badge bg-primary-soft">
-                                        Room {{ resident.assigned_room.room_number }}
-                                    </span>
+    <!-- RESIDENTS TABLE CARD -->
+    <div class="glass-card p-4">
+        <div class="table-responsive">
+            <table id="residentsTable" class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Resident</th>
+                        <th>Room</th>
+                        <th>Contact</th>
+                        <th>Emergency Contact</th>
+                        <th>Relationship</th>
+                        <th>Emergency Phone</th>
+                        <th class="text-center">Status Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resident in residents %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if resident.profile_picture %}
+                                    <img src="{{ resident.profile_picture.url }}" class="rounded-circle me-3 avatar-img" alt="{{ resident.full_name }}">
                                 {% else %}
-                                    <span class="badge bg-danger-soft">
-                                        Unassigned
-                                    </span>
+                                    <div class="rounded-circle me-3 avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
                                 {% endif %}
-                            </td>
-
-                            <td>
-                                {{ resident.contact_number|default:"Not provided" }}
-                            </td>
-
-                            <td>
-                                {{ resident.emergency_contact.contact_name|default:"-" }}
-                            </td>
-
-                            <td>
-                                {{ resident.emergency_contact.relationship|default:"-" }}
-                            </td>
-
-                            <td>
-                                {{ resident.emergency_contact.phone_number|default:"-" }}
-                            </td>
-
-                            <td class="text-center">
+                                <div>
+                                    <div class="fw-bold text-slate-900">{{ resident.full_name }}</div>
+                                    <div class="text-muted small">{{ resident.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if resident.assigned_room %}
+                                <span class="badge bg-primary-soft">
+                                    Room {{ resident.assigned_room.room_number }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger-soft">
+                                    Unassigned
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-slate-700">
+                            {{ resident.contact_number|default:"Not provided" }}
+                        </td>
+                        <td class="small fw-semibold text-slate-800">
+                            {{ resident.emergency_contact.contact_name|default:"-" }}
+                        </td>
+                        <td class="small text-muted">
+                            {{ resident.emergency_contact.relationship|default:"-" }}
+                        </td>
+                        <td class="small text-slate-700">
+                            {{ resident.emergency_contact.phone_number|default:"-" }}
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                <a href="{% url 'management:edit_resident' resident.id %}" class="btn btn-soft-primary btn-sm" title="Edit Resident">
+                                    <i class="fas fa-edit me-1"></i> Edit
+                                </a>
                                 <form action="{% url 'users:toggle_resident_status' resident.id %}" method="POST" class="d-inline">
                                     {% csrf_token %}
                                     {% if resident.is_active %}
-                                        <button type="submit" class="btn btn-danger-soft btn-sm">Deactivate</button>
+                                        <button type="submit" class="btn btn-soft-danger btn-sm" title="Deactivate Account">
+                                            <i class="fas fa-user-slash me-1"></i> Deactivate
+                                        </button>
                                     {% else %}
-                                        <button type="submit" class="btn btn-success-soft btn-sm">Activate</button>
+                                        <button type="submit" class="btn btn-soft-success btn-sm" title="Activate Account">
+                                            <i class="fas fa-user-check me-1"></i> Activate
+                                        </button>
                                     {% endif %}
                                 </form>
-                            </td>
-                        </tr>
-
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-5">
-                                <i class="fas fa-users fa-3x opacity-25 mb-3"></i>
-                                <p class="text-muted">No residents found.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-            </div>
-
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted opacity-25 mb-3"></i>
+                            <h6 class="fw-bold text-dark">No residents found</h6>
+                            <p class="text-muted small">Registered students will show up in this directory.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
 </div>
-
-<!-- CUSTOM STYLES -->
-<style>
-
-/* Page Header */
-
-h2{
-    font-weight:700;
-}
-
-.text-muted{
-    font-size:0.9rem;
-}
-
-
-/* Card */
-
-.card{
-    border-radius:18px;
-    overflow:hidden;
-    transition:.25s;
-}
-
-.card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 12px 30px rgba(0,0,0,0.08);
-}
-
-.card-header{
-    background:#f8fafc !important;
-}
-
-
-/* Table */
-
-.table{
-    border-collapse:separate;
-    border-spacing:0 8px;
-}
-
-.table thead th{
-    font-size:.75rem;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    font-weight:700;
-    color:#6b7280;
-}
-
-.table tbody tr{
-    background:white;
-    border-radius:10px;
-    transition:.2s;
-}
-
-.table tbody tr:hover{
-    background:#f9fafb;
-    transform:scale(1.01);
-}
-
-.table td{
-    vertical-align:middle;
-    border-top:none;
-}
-
-
-/* Avatar */
-
-.avatar-img{
-    width:40px;
-    height:40px;
-    object-fit:cover;
-    border:2px solid #f1f5f9;
-}
-
-.avatar-placeholder{
-    width:40px;
-    height:40px;
-    background:#6c757d;
-    color:white;
-}
-
-
-/* Badges */
-
-.badge{
-    font-size:.75rem;
-    padding:.45em .7em;
-    border-radius:30px;
-}
-
-.bg-primary-soft{
-    background:#e8edff;
-    color:#3f51b5;
-}
-
-.bg-danger-soft{
-    background:#fdeaea;
-    color:#d32f2f;
-}
-
-
-/* Buttons */
-
-.btn-secondary-soft{
-    background:#f3f4f6;
-    border:1px solid #e5e7eb;
-    color:#374151;
-    font-size:.8rem;
-    padding:4px 12px;
-    border-radius:20px;
-    transition:.2s;
-}
-
-.btn-secondary-soft:hover{
-    background:#4361ee;
-    color:white;
-    border-color:#4361ee;
-}
-
-.btn-danger-soft{
-    background:#fdeaea;
-    border:1px solid #fdeaea;
-    color:#d32f2f;
-    font-size:.8rem;
-    padding:4px 12px;
-    border-radius:20px;
-    transition:.2s;
-}
-
-.btn-danger-soft:hover{
-    background:#d32f2f;
-    color:white;
-    border-color:#d32f2f;
-}
-
-.btn-success-soft{
-    background:#e8f5e9;
-    border:1px solid #e8f5e9;
-    color:#4caf50;
-    font-size:.8rem;
-    padding:4px 12px;
-    border-radius:20px;
-    transition:.2s;
-}
-
-.btn-success-soft:hover{
-    background:#4caf50;
-    color:white;
-    border-color:#4caf50;
-}
-
-
-/* DataTables */
-
-.dataTables_filter input{
-    border-radius:20px !important;
-    padding:.4rem .9rem !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button{
-    border-radius:20px !important;
-}
-
-
-/* Empty State */
-
-.opacity-25{
-    opacity:.25;
-}
-
-</style>
 
 <!-- SCRIPTS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -303,10 +127,9 @@ h2{
 
 <script>
 $(document).ready(function() {
-
     $('#residentsTable').DataTable({
         pageLength: 10,
-        dom: '<"d-flex justify-content-between mb-3"f>rt<"d-flex justify-content-between mt-3"ip>',
+        dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4"f>rt<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-4"ip>',
         language: {
             search: "",
             searchPlaceholder: "Search residents..."
@@ -314,10 +137,8 @@ $(document).ready(function() {
     });
 
     $('.dataTables_filter input')
-        .addClass('form-control shadow-sm')
-        .css('width','250px');
-
+        .addClass('form-control')
+        .css('width', '240px');
 });
 </script>
-
 {% endblock %}

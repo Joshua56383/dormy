@@ -1,297 +1,172 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Dormitory Rulebook{% endblock %}
+{% block title %}Dormitory Rulebook | dormY{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container-fluid px-0">
 
-<div class="text-center mb-5">
-    <h1 class="fw-bold display-5">
-        <i class="fas fa-book-open text-success me-2"></i>
-        University Dormitory Rulebook
-    </h1>
-    <p class="lead text-muted">
-        A guide to maintaining a safe, respectful, and supportive dormitory community.
-    </p>
-</div>
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">University Dormitory Rulebook</h2>
+                    <p class="text-white-50 mb-0 small">A guide to maintaining a safe, respectful, and supportive residential community.</p>
+                </div>
+            </div>
+            <div>
+                <span class="badge bg-white text-primary fw-semibold px-3 py-2 fs-6">
+                    Official Code of Conduct
+                </span>
+            </div>
+        </div>
+    </div>
 
-<div class="accordion rulebook-accordion" id="rulesAccordion">
+    <div class="accordion rulebook-accordion d-flex flex-column gap-3" id="rulesAccordion">
 
-<!-- I -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingOne">
-<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-<i class="fas fa-bullseye me-2 text-success"></i>
-<strong>I. Purpose of the Dormitory</strong>
-</button>
-</h2>
-<div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-The university dormitory exists to provide students with a safe, clean, respectful, and supportive living environment that promotes academic success, discipline, and community responsibility.
-</div>
-</div>
-</div>
+        <!-- I -->
+        <div class="accordion-item glass-card border-0 overflow-hidden">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button fw-bold text-slate-900 bg-transparent py-3 px-4 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                    <i class="fas fa-bullseye me-3 text-primary"></i>
+                    <span>I. Purpose of the Dormitory</span>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#rulesAccordion">
+                <div class="accordion-body px-4 pb-4 pt-0 text-slate-700">
+                    The university dormitory exists to provide students with a safe, clean, respectful, and supportive living environment that promotes academic success, discipline, and community responsibility.
+                </div>
+            </div>
+        </div>
 
-<!-- II -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingTwo">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-<i class="fas fa-id-card me-2 text-success"></i>
-<strong>II. Eligibility and Residency</strong>
-</button>
-</h2>
-<div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Only currently enrolled students of the university are allowed to reside in the dormitory.</li>
-<li>Residents must submit all required documents and follow the dorm application and renewal process.</li>
-<li>Room assignments are non-transferable unless approved by dorm management.</li>
-</ul>
-</div>
-</div>
-</div>
+        <!-- II -->
+        <div class="accordion-item glass-card border-0 overflow-hidden">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed fw-bold text-slate-900 bg-transparent py-3 px-4 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                    <i class="fas fa-id-card me-3 text-primary"></i>
+                    <span>II. Eligibility and Residency</span>
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
+                <div class="accordion-body px-4 pb-4 pt-0 text-slate-700">
+                    <ul class="mb-0 ps-3">
+                        <li class="mb-2">Only currently enrolled students of the university are allowed to reside in the dormitory.</li>
+                        <li class="mb-2">Residents must submit all required documents and follow the dorm application and renewal process.</li>
+                        <li>Room assignments are non-transferable unless approved by dorm management.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-<!-- III -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingThree">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-<i class="fas fa-users me-2 text-success"></i>
-<strong>III. General Conduct</strong>
-</button>
-</h2>
-<div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Residents must show respect to fellow residents, dorm staff, and university property.</li>
-<li>Any form of harassment, bullying, threats, or violence is strictly prohibited.</li>
-<li>Disorderly conduct, vandalism, or intentional damage to property is not allowed.</li>
-<li>Residents must follow university rules in addition to dormitory rules.</li>
-</ul>
-</div>
-</div>
-</div>
+        <!-- III -->
+        <div class="accordion-item glass-card border-0 overflow-hidden">
+            <h2 class="accordion-header" id="headingThree">
+                <button class="accordion-button collapsed fw-bold text-slate-900 bg-transparent py-3 px-4 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                    <i class="fas fa-users me-3 text-primary"></i>
+                    <span>III. General Conduct</span>
+                </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
+                <div class="accordion-body px-4 pb-4 pt-0 text-slate-700">
+                    <ul class="mb-0 ps-3">
+                        <li class="mb-2">Residents must show respect to fellow residents, dorm staff, and university property.</li>
+                        <li class="mb-2">Any form of harassment, bullying, threats, or violence is strictly prohibited.</li>
+                        <li class="mb-2">Disorderly conduct, vandalism, or intentional damage to property is not allowed.</li>
+                        <li>Residents must follow university rules in addition to dormitory rules.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-<!-- IV -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingFour">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
-<i class="fas fa-moon me-2 text-success"></i>
-<strong>IV. Quiet Hours</strong>
-</button>
-</h2>
-<div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<p>Quiet hours are enforced to support rest and study:</p>
-<ul class="rule-list">
-<li><strong>Weekdays:</strong> 10:00 PM – 6:00 AM</li>
-<li><strong>Weekends:</strong> 11:00 PM – 7:00 AM</li>
-</ul>
-<p>Loud music, shouting, or disruptive activities during quiet hours are prohibited. Earphones are recommended.</p>
-</div>
-</div>
-</div>
+        <!-- IV -->
+        <div class="accordion-item glass-card border-0 overflow-hidden">
+            <h2 class="accordion-header" id="headingFour">
+                <button class="accordion-button collapsed fw-bold text-slate-900 bg-transparent py-3 px-4 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                    <i class="fas fa-moon me-3 text-primary"></i>
+                    <span>IV. Quiet Hours</span>
+                </button>
+            </h2>
+            <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
+                <div class="accordion-body px-4 pb-4 pt-0 text-slate-700">
+                    <p class="mb-2">Quiet hours are enforced to support rest and study:</p>
+                    <ul class="mb-2 ps-3">
+                        <li class="mb-1"><strong>Weekdays:</strong> 10:00 PM – 6:00 AM</li>
+                        <li><strong>Weekends:</strong> 11:00 PM – 7:00 AM</li>
+                    </ul>
+                    <p class="mb-0 small text-muted">Loud music, shouting, or disruptive activities during quiet hours are prohibited. Personal earphones are strongly recommended.</p>
+                </div>
+            </div>
+        </div>
 
-<!-- V -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingFive">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive">
-<i class="fas fa-user-friends me-2 text-success"></i>
-<strong>V. Visitors and Guests</strong>
-</button>
-</h2>
-<div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Visitors are allowed only during designated visiting hours.</li>
-<li>All visitors must sign the visitor logbook.</li>
-<li>Overnight guests require official approval.</li>
-<li>Residents are responsible for their guests’ behavior.</li>
-</ul>
-</div>
-</div>
-</div>
+        <!-- V -->
+        <div class="accordion-item glass-card border-0 overflow-hidden">
+            <h2 class="accordion-header" id="headingFive">
+                <button class="accordion-button collapsed fw-bold text-slate-900 bg-transparent py-3 px-4 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive">
+                    <i class="fas fa-user-friends me-3 text-primary"></i>
+                    <span>V. Visitors and Guests</span>
+                </button>
+            </h2>
+            <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
+                <div class="accordion-body px-4 pb-4 pt-0 text-slate-700">
+                    <ul class="mb-0 ps-3">
+                        <li class="mb-2">All visitors must log in and register with official ID at the lobby entrance.</li>
+                        <li class="mb-2">Overnight stays by non-residents require advance formal written management approval.</li>
+                        <li>Residents are personally responsible for the conduct and actions of their registered guests.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-<!-- VI -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingSix">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix">
-<i class="fas fa-broom me-2 text-success"></i>
-<strong>VI. Cleanliness and Maintenance</strong>
-</button>
-</h2>
-<div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Residents must keep rooms clean and organized.</li>
-<li>Dispose trash properly in designated areas.</li>
-<li>Cleaning groups rotate daily for common areas.</li>
-<li>Failure to follow schedules may result in penalties.</li>
-<li>Report damages immediately to dorm staff.</li>
-</ul>
-</div>
-</div>
-</div>
+        <!-- VI -->
+        <div class="accordion-item glass-card border-0 overflow-hidden">
+            <h2 class="accordion-header" id="headingSix">
+                <button class="accordion-button collapsed fw-bold text-slate-900 bg-transparent py-3 px-4 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix">
+                    <i class="fas fa-broom me-3 text-primary"></i>
+                    <span>VI. Cleanliness and Maintenance</span>
+                </button>
+            </h2>
+            <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
+                <div class="accordion-body px-4 pb-4 pt-0 text-slate-700">
+                    <ul class="mb-0 ps-3">
+                        <li class="mb-2">All residents must take part in their designated weekly cleaning rotations.</li>
+                        <li class="mb-2">Common areas (hallways, shared kitchens, restrooms) must be kept clear of personal items.</li>
+                        <li>Garbage must be properly sorted and disposed of in designated waste collection points.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-<!-- VII -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingSeven">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven">
-<i class="fas fa-ban me-2 text-danger"></i>
-<strong>VII. Prohibited Items and Activities</strong>
-</button>
-</h2>
-<div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Illegal drugs, vaping devices, and alcohol</li>
-<li>Weapons or dangerous items</li>
-<li>Candles or open flames</li>
-<li>Gambling or illegal activities</li>
-<li>Pets (except approved service animals)</li>
-</ul>
-</div>
-</div>
-</div>
+        <!-- VII -->
+        <div class="accordion-item glass-card border-0 overflow-hidden">
+            <h2 class="accordion-header" id="headingSeven">
+                <button class="accordion-button collapsed fw-bold text-slate-900 bg-transparent py-3 px-4 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven">
+                    <i class="fas fa-shield-alt me-3 text-primary"></i>
+                    <span>VII. Safety and Emergency Protocols</span>
+                </button>
+            </h2>
+            <div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
+                <div class="accordion-body px-4 pb-4 pt-0 text-slate-700">
+                    <ul class="mb-0 ps-3">
+                        <li class="mb-2">Familiarize yourself with building evacuation routes posted on each floor.</li>
+                        <li class="mb-2">Tampering with fire extinguishers, alarms, or smoke detectors is a severe disciplinary offense.</li>
+                        <li>Report any maintenance, water leak, or electrical hazards to dorm management immediately.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-<!-- VIII -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingEight">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight">
-<i class="fas fa-shield-alt me-2 text-success"></i>
-<strong>VIII. Safety and Security</strong>
-</button>
-</h2>
-<div id="collapseEight" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Carry your Dorm ID at all times.</li>
-<li>Do not share keys or access cards.</li>
-<li>Tampering with fire safety equipment is a serious offense.</li>
-<li>Follow curfew policies if applicable.</li>
-</ul>
-</div>
-</div>
-</div>
+    </div>
 
-<!-- IX -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingNine">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNine">
-<i class="fas fa-building me-2 text-success"></i>
-<strong>IX. Use of Facilities</strong>
-</button>
-</h2>
-<div id="collapseNine" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Use common areas responsibly.</li>
-<li>Do not leave personal belongings unattended.</li>
-<li>Misuse of facilities may lead to restricted access.</li>
-</ul>
-</div>
-</div>
-</div>
-
-<!-- X -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingTen">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTen">
-<i class="fas fa-wifi me-2 text-success"></i>
-<strong>X. Internet and Electricity Use</strong>
-</button>
-</h2>
-<div id="collapseTen" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Dorm internet should be used responsibly.</li>
-<li>Downloading illegal content is prohibited.</li>
-<li>Conserve electricity and water whenever possible.</li>
-</ul>
-</div>
-</div>
-</div>
-
-<!-- XI -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingEleven">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEleven">
-<i class="fas fa-gavel me-2 text-danger"></i>
-<strong>XI. Violations and Disciplinary Actions</strong>
-</button>
-</h2>
-<div id="collapseEleven" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li><strong>First offense:</strong> Warning</li>
-<li><strong>Second offense:</strong> Community service or penalty</li>
-<li><strong>Third offense:</strong> Suspension or removal</li>
-</ul>
-<p>Serious violations may result in immediate eviction.</p>
-</div>
-</div>
-</div>
-
-<!-- XII -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingTwelve">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwelve">
-<i class="fas fa-exclamation-triangle me-2 text-danger"></i>
-<strong>XII. Emergency Procedures</strong>
-</button>
-</h2>
-<div id="collapseTwelve" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-<ul class="rule-list">
-<li>Follow evacuation procedures during emergencies.</li>
-<li>Keep emergency exits accessible.</li>
-<li>Report emergencies immediately to staff or security.</li>
-</ul>
-</div>
-</div>
-</div>
-
-<!-- XIII -->
-<div class="accordion-item">
-<h2 class="accordion-header" id="headingThirteen">
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThirteen">
-<i class="fas fa-edit me-2 text-success"></i>
-<strong>XIII. Amendments</strong>
-</button>
-</h2>
-<div id="collapseThirteen" class="accordion-collapse collapse" data-bs-parent="#rulesAccordion">
-<div class="accordion-body">
-The dormitory administration reserves the right to amend this rulebook. Residents will be notified of any updates.
-</div>
-</div>
-</div>
-
-</div>
 </div>
 
 <style>
-
-/* Accordion styling */
-
-.rulebook-accordion .accordion-item{
-border-radius:10px;
-overflow:hidden;
-margin-bottom:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
-
-.rulebook-accordion .accordion-button{
-font-weight:600;
-}
-
-.rulebook-accordion .accordion-button:not(.collapsed){
-background:#e8f5e9;
-color:#1b5e20;
-}
-
-.rule-list li{
-margin-bottom:6px;
-}
-
+    .rulebook-accordion .accordion-button:not(.collapsed) {
+        color: var(--primary-700) !important;
+        background: rgba(37, 99, 235, 0.06) !important;
+    }
 </style>
-
 {% endblock %}

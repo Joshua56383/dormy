@@ -2,323 +2,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}dormY Portal{% endblock %}</title>
 
-<title>{% block title %}dormY Dashboard{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome & Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Glassmorphism Design System (21st.dev inspired) -->
+    <link rel="stylesheet" href="{% static 'css/glassmorphism.css' %}">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-
-:root{
---green-dark:#1b5e20;
---green-main:#2e7d32;
---green-accent:#4caf50;
---green-light:#a5d6a7;
---bg-light:#f8f9fa;
---shadow-color:rgba(46,125,50,0.2);
-}
-
-/* Scrollbar */
-
-::-webkit-scrollbar{
-width:10px;
-}
-
-::-webkit-scrollbar-track{
-background:var(--bg-light);
-}
-
-::-webkit-scrollbar-thumb{
-background:var(--green-light);
-border-radius:10px;
-}
-
-::-webkit-scrollbar-thumb:hover{
-background:var(--green-accent);
-}
-
-/* Body */
-
-body{
-font-family:'Poppins',sans-serif;
-background:var(--bg-light);
-color:#333;
-margin:0;
-animation:fadeIn 0.5s ease;
-}
-
-/* Fade animation */
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-/* Navbar */
-
-.navbar{
-background:linear-gradient(120deg,var(--green-main),var(--green-dark));
-box-shadow:0 4px 15px var(--shadow-color);
-border-bottom:2px solid var(--green-accent);
-backdrop-filter:blur(10px);
-}
-
-.navbar-brand img{
-transition:0.3s;
-}
-
-.navbar-brand:hover img{
-transform:scale(1.1) rotate(-3deg);
-}
-
-.dormy-brand-text{
-font-size:1.6rem;
-font-weight:700;
-color:#fff;
-letter-spacing:1px;
-transition:0.3s;
-}
-
-.navbar-brand:hover .dormy-brand-text{
-color:var(--green-light);
-text-shadow:0 0 10px var(--green-light);
-}
-
-/* Nav links */
-
-.nav-link{
-color:rgba(255,255,255,0.85)!important;
-font-weight:600;
-letter-spacing:0.5px;
-position:relative;
-transition:0.3s;
-padding-bottom:6px;
-}
-
-.nav-link:hover{
-color:#fff!important;
-transform:translateY(-2px);
-}
-
-.nav-link:after{
-content:'';
-position:absolute;
-bottom:0;
-left:50%;
-transform:translateX(-50%);
-width:0;
-height:2px;
-background:var(--green-accent);
-transition:0.3s;
-}
-
-.nav-link:hover:after{
-width:80%;
-}
-
-/* Active link */
-
-.nav-link.active{
-color:white!important;
-}
-
-.nav-link.active:after{
-width:80%;
-}
-
-/* Mobile toggler */
-
-.navbar-toggler{
-border:none;
-}
-
-.navbar-toggler:focus{
-box-shadow:none;
-}
-
-/* Main content */
-
-.main-content{
-padding:2.5rem;
-}
-
-/* Page title */
-
-.page-title{
-color:var(--green-dark);
-font-weight:700;
-letter-spacing:1px;
-margin-bottom:2.5rem;
-border-left:6px solid var(--green-accent);
-padding-left:1.5rem;
-}
-
-/* Cards */
-
-.dashboard-card{
-background:white;
-border-radius:16px;
-border:1px solid #e0e0e0;
-border-top:4px solid var(--green-accent);
-box-shadow:0 8px 18px var(--shadow-color);
-padding:1.5rem;
-transition:all 0.3s ease;
-}
-
-.dashboard-card:hover{
-transform:translateY(-8px) scale(1.01);
-box-shadow:0 18px 35px var(--shadow-color);
-}
-
-/* Buttons */
-
-.btn-primary{
-background:linear-gradient(to right,var(--green-accent),var(--green-main));
-border:none;
-font-weight:600;
-color:white;
-border-radius:8px;
-padding:8px 18px;
-box-shadow:0 4px 15px rgba(0,0,0,0.2);
-transition:all 0.3s ease;
-}
-
-.btn-primary:hover{
-color:white;
-transform:translateY(-3px);
-box-shadow:0 8px 20px rgba(0,0,0,0.3);
-}
-
-/* Alerts */
-
-.alert{
-border-radius:10px;
-font-weight:500;
-}
-
-.alert-success{
-background:#e8f5e9;
-border-left:5px solid var(--green-accent);
-color:var(--green-dark);
-}
-
-/* Soft badges */
-
-.bg-success-soft{
-background:rgba(25,135,84,0.15);
-color:#198754!important;
-}
-
-.bg-warning-soft{
-background:rgba(255,193,7,0.15);
-color:#b08800!important;
-}
-
-.bg-danger-soft{
-background:rgba(220,53,69,0.15);
-color:#dc3545!important;
-}
-
-</style>
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-lg">
-<div class="container">
+    <!-- Glassmorphic Resident Top Navigation -->
+    <nav class="navbar navbar-expand-lg glass-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'users:dashboard' %}">
+                <img src="{% static 'images/logo.png' %}" alt="dormY Logo" style="height: 36px; width: auto; object-fit: contain;">
+                <span class="fw-bold tracking-tight text-primary">dormY</span>
+            </a>
 
-<a class="navbar-brand d-flex align-items-center" href="{% url 'users:dashboard' %}">
-<img src="{% static 'images/logo.png' %}" alt="dormY Logo" style="height:35px;margin-right:10px;">
-<span class="dormy-brand-text">dormY</span>
-</a>
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list fs-4 text-primary"></i>
+            </button>
 
-<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-<span class="navbar-toggler-icon"></span>
-</button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'users:dashboard' %}">
+                                <i class="fas fa-home me-2 text-primary"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'room_list' or request.resolver_match.url_name == 'room_detail' %}active{% endif %}" href="{% url 'rooms:room_list' %}">
+                                <i class="fas fa-door-open me-2 text-primary"></i>Rooms
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'schedule' %}active{% endif %}" href="{% url 'users:schedule' %}">
+                                <i class="fas fa-calendar-alt me-2 text-primary"></i>Schedule
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'rules' %}active{% endif %}" href="{% url 'users:rules' %}">
+                                <i class="fas fa-book me-2 text-primary"></i>House Rules
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#accountSettingsModal">
+                                <i class="fas fa-user-circle me-2 text-primary"></i>Account
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-soft-danger btn-sm px-3 shadow-sm fw-semibold {% if request.resolver_match.url_name == 'report_violation' %}active{% endif %}" href="{% url 'users:report_violation' %}">
+                                <i class="fas fa-flag me-1"></i>Report Violation
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-1">
+                            <a class="btn btn-glass btn-sm" href="{% url 'users:logout' %}" title="Sign out">
+                                <i class="fas fa-sign-out-alt me-1 text-muted"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'rooms:available_rooms' %}">
+                                <i class="fas fa-bed me-1 text-primary"></i>Available Rooms
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-primary btn-sm px-3" href="{% url 'users:login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Sign In
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<div class="collapse navbar-collapse" id="navbarNav">
+    <!-- Main Content Container -->
+    <div class="main-content py-4">
+        <div class="container">
+            {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-<ul class="navbar-nav ms-auto">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
 
-{% if user.is_authenticated %}
+    {% if user.is_authenticated %}
+        {% include 'includes/account_settings_modal.html' %}
+    {% endif %}
 
-<li class="nav-item">
-<a class="nav-link" href="{% url 'users:dashboard' %}">
-<i class="fas fa-home me-2"></i>Dashboard
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="{% url 'rooms:room_list' %}">
-<i class="fas fa-door-open me-2"></i>Rooms
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link {% if request.resolver_match.url_name == 'schedule' %}active{% endif %}" href="{% url 'users:schedule' %}">
-<i class="fas fa-calendar-alt me-2"></i>Schedule
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="{% url 'users:rules' %}">
-<i class="fas fa-book me-2"></i>Rules
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="{% url 'users:account' %}">
-<i class="fas fa-user-cog me-2"></i>Account
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="{% url 'users:logout' %}">
-<i class="fas fa-sign-out-alt me-2"></i>Logout
-</a>
-</li>
-
-{% else %}
-
-<li class="nav-item">
-<a class="nav-link" href="{% url 'users:login' %}">
-Login
-</a>
-</li>
-
-{% endif %}
-
-</ul>
-
-</div>
-</div>
-</nav>
-
-<div class="main-content">
-<div class="container">
-
-{% if messages %}
-{% for message in messages %}
-
-<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-{{ message }}
-<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-
-{% endfor %}
-{% endif %}
-
-{% block content %}
-{% endblock %}
-
-</div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

@@ -1,384 +1,405 @@
 {% extends 'basem.html' %}
+{% load static %}
 
-{% block title %}Manage Violations | DormMaster{% endblock %}
+{% block title %}Manage Violations | dormY Management{% endblock %}
 
 {% block content %}
-
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
-<div class="container-fluid">
+<div class="container-fluid px-0">
 
-```
-<!-- HEADER -->
-<div class="row mb-4 align-items-center">
-    <div class="col-md-6">
-        <h3 class="fw-bold text-dark mb-1">Violation Management</h3>
-
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item">
-                    <a href="#" class="text-decoration-none text-primary">Dashboard</a>
-                </li>
-                <li class="breadcrumb-item active">Violations</li>
-            </ol>
-        </nav>
-    </div>
-
-    <div class="col-md-6 text-md-end mt-3 mt-md-0">
-        <div class="d-inline-flex bg-white p-2 border rounded shadow-sm">
-            <span class="text-muted small px-2">
-                Total Infractions:
-                <strong class="text-danger">{{ violations|length }}</strong>
-            </span>
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-danger shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Violation Management</h2>
+                    <p class="text-white-50 mb-0 small">Review student reports, record infractions, and manage conduct logs.</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                {% if pending_reports %}
+                <span class="badge bg-warning text-dark fw-semibold px-3 py-2 fs-6">
+                    <i class="fas fa-clock me-1"></i> {{ pending_reports|length }} Pending Review
+                </span>
+                {% endif %}
+                <span class="badge bg-white text-danger fw-semibold px-3 py-2 fs-6">
+                    Confirmed: {{ violations|length }}
+                </span>
+            </div>
         </div>
     </div>
-</div>
 
-
-<div class="row g-4">
-
-    <!-- VIOLATION TABLE -->
-    <div class="col-lg-8">
-
-        <div class="card border-0 shadow-sm h-100">
-
-            <div class="card-header bg-white py-3 border-bottom border-light">
-                <h5 class="card-title mb-0 fw-semibold text-dark">
-                    Infraction Log
-                </h5>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 1: PENDING STUDENT REPORTS                             -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    {% if pending_reports %}
+    <div class="glass-card p-4 mb-4 border-warning" style="border: 1.5px solid rgba(245,158,11,0.45) !important;">
+        <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+            <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(245,158,11,0.12); color: #b45309;">
+                <i class="fas fa-inbox"></i>
             </div>
+            <div>
+                <h5 class="fw-bold mb-0 text-slate-900">Pending Student Reports</h5>
+                <p class="text-muted small mb-0">These were submitted by residents and require your approval or rejection.</p>
+            </div>
+            <span class="badge bg-warning-soft ms-auto">{{ pending_reports|length }} Awaiting</span>
+        </div>
 
-            <div class="card-body p-4">
+        <div class="d-flex flex-column gap-3">
+            {% for report in pending_reports %}
+            <div class="p-4 rounded-3" style="background: rgba(254,252,232,0.7); border: 1px solid rgba(245,158,11,0.25);">
+                <div class="d-flex flex-column flex-md-row align-items-md-start gap-3 justify-content-between">
+                    <!-- Report Info -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                            <span class="badge bg-warning-soft fw-semibold">
+                                <i class="fas fa-clock me-1"></i> Pending Review
+                            </span>
+                            <span class="badge bg-danger-soft">
+                                Student Reported
+                            </span>
+                            <span class="text-muted small">
+                                <i class="far fa-clock me-1"></i>{{ report.date_committed|date:"M d, Y, g:i a" }}
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-start gap-3">
+                            <div>
+                                <div class="fw-bold text-slate-900">
+                                    Reported about: <span class="text-danger">{{ report.student.get_full_name|default:report.student.username }}</span>
+                                </div>
+                                <div class="text-muted small mb-2">
+                                    Reported by: <strong class="text-slate-700">{{ report.reported_by.get_full_name|default:report.reported_by.username }}</strong>
+                                </div>
+                                <p class="text-slate-700 mb-0 small" style="max-width: 600px;">{{ report.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        <button type="button"
+                                class="btn btn-soft-success btn-sm px-3"
+                                data-bs-toggle="modal"
+                                data-bs-target="#approveModal"
+                                data-violation-id="{{ report.id }}"
+                                data-student-name="{{ report.student.get_full_name|default:report.student.username }}"
+                                data-reporter-name="{{ report.reported_by.get_full_name|default:report.reported_by.username }}">
+                            <i class="fas fa-check me-1"></i> Approve
+                        </button>
+                        <button type="button"
+                                class="btn btn-soft-danger btn-sm px-3"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rejectModal"
+                                data-violation-id="{{ report.id }}"
+                                data-student-name="{{ report.student.get_full_name|default:report.student.username }}"
+                                data-reporter-name="{{ report.reported_by.get_full_name|default:report.reported_by.username }}">
+                            <i class="fas fa-times me-1"></i> Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 2: VIOLATION LOG + ASSIGN FORM                         -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="row g-4">
+        <!-- CONFIRMED INFRACTION LOG (LEFT) -->
+        <div class="col-lg-8">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(239,68,68,0.1); color: #dc2626;">
+                            <i class="fas fa-list-alt"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Confirmed Infraction Log</h5>
+                    </div>
+                    <span class="badge bg-danger-soft">{{ violations|length }} Total</span>
+                </div>
 
                 <div class="table-responsive">
-
                     <table id="violationTable" class="table table-hover align-middle mb-0">
-
-                        <thead class="table-light">
+                        <thead>
                             <tr>
-                                <th class="border-0 text-uppercase x-small fw-bold text-muted">Student</th>
-                                <th class="border-0 text-uppercase x-small fw-bold text-muted">Description</th>
-                                <th class="border-0 text-uppercase x-small fw-bold text-muted">Date</th>
-                                <th class="border-0 text-uppercase x-small fw-bold text-muted">Action</th>
+                                <th>Student</th>
+                                <th>Description</th>
+                                <th>Source</th>
+                                <th>Date</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
-
                         <tbody>
-
                             {% for violation in violations %}
-
                             <tr>
-
                                 <td>
                                     <div class="d-flex align-items-center">
-
-                                        <div class="avatar-soft bg-danger-soft text-danger rounded-circle me-3">
-                                            <i class="bi bi-person-fill"></i>
+                                        <div class="rounded-circle me-3 avatar-placeholder" style="background: rgba(239,68,68,0.1); color: #dc2626;">
+                                            <i class="fas fa-user-times"></i>
                                         </div>
-
-                                        <span class="fw-semibold text-dark">
+                                        <span class="fw-semibold text-slate-900">
                                             {{ violation.student.get_full_name|default:violation.student.username }}
                                         </span>
-
                                     </div>
                                 </td>
-
                                 <td>
-                                    <p class="text-muted small mb-0 text-wrap" style="max-width:250px;">
+                                    <p class="text-slate-700 small mb-0 text-wrap" style="max-width: 250px;">
                                         {{ violation.description }}
                                     </p>
                                 </td>
-
                                 <td>
-                                    <span class="badge bg-light text-dark border fw-medium px-2">
+                                    {% if violation.reported_by and not violation.reported_by.is_staff %}
+                                        <span class="badge bg-warning-soft">
+                                            <i class="fas fa-user me-1"></i> Student Report
+                                        </span>
+                                    {% elif violation.reported_by and violation.reported_by.is_staff %}
+                                        <span class="badge bg-primary-soft">
+                                            <i class="fas fa-user-shield me-1"></i> Staff Logged
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-soft">
+                                            <i class="fas fa-user-shield me-1"></i> Staff Logged
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-danger-soft px-3 py-1">
                                         {{ violation.date_committed|date:"M d, Y" }}
                                     </span>
                                 </td>
-
-                                <td>
-
-                                    <div class="dropdown">
-
-                                        <button class="btn btn-link text-muted p-0 shadow-none"
-                                                data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-
-                                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm">
-
-                                            <li>
-                                                <a class="dropdown-item small" href="#">
-                                                    <i class="bi bi-pencil me-2"></i>
-                                                    Edit
-                                                </a>
-                                            </li>
-
-                                            <li><hr class="dropdown-divider"></li>
-
-                                            <li>
-                                                <button type="button"
-                                                        class="dropdown-item small text-danger"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#deleteViolationModal"
-                                                        data-violation-id="{{ violation.id }}"
-                                                        data-student-name="{{ violation.student.get_full_name|default:violation.student.username }}">
-
-                                                    <i class="bi bi-trash me-2"></i>
-                                                    Remove
-                                                </button>
-                                            </li>
-
-                                        </ul>
-
-                                    </div>
-
+                                <td class="text-center">
+                                    <button type="button"
+                                            class="btn btn-soft-danger btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteViolationModal"
+                                            data-violation-id="{{ violation.id }}"
+                                            data-student-name="{{ violation.student.get_full_name|default:violation.student.username }}">
+                                        <i class="fas fa-trash-alt me-1"></i> Remove
+                                    </button>
                                 </td>
-
                             </tr>
-
                             {% empty %}
-
                             <tr>
-                                <td colspan="4" class="text-center py-5">
-
-                                    <i class="bi bi-shield-check fs-1 text-success opacity-25"></i>
-
-                                    <p class="text-muted mt-2 mb-0">
-                                        No violations recorded yet.
-                                    </p>
-
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="fas fa-shield-alt fa-3x text-success opacity-25 mb-3"></i>
+                                    <h6 class="fw-bold text-dark">No confirmed violations</h6>
+                                    <p class="text-muted small">All residents are currently in good standing.</p>
                                 </td>
                             </tr>
-
                             {% endfor %}
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
         </div>
 
-    </div>
-
-
-
-    <!-- ADD VIOLATION FORM -->
-    <div class="col-lg-4">
-
-        <div class="card border-0 shadow-sm sticky-top" style="top:5rem">
-
-            <div class="card-header bg-danger text-white py-3">
-                <h5 class="card-title mb-0 fw-bold">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Assign Violation
-                </h5>
-            </div>
-
-            <div class="card-body p-4">
+        <!-- ASSIGN VIOLATION FORM (RIGHT) -->
+        <div class="col-lg-4">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(239,68,68,0.1); color: #dc2626;">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-slate-900">Assign Violation</h5>
+                </div>
+                <p class="text-muted small mb-3">Staff-logged violations are immediately confirmed and added to the official record.</p>
 
                 <form method="post">
                     {% csrf_token %}
-
-                    <!-- STUDENT -->
-
-                    <div class="mb-4">
-
-                        <label class="form-label fw-bold x-small text-uppercase text-muted">
-                            Select Student
-                        </label>
-
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Select Resident</label>
                         {{ form.student }}
-
                         {% if form.student.errors %}
-                        <div class="text-danger x-small mt-1">
-                            {{ form.student.errors|striptags }}
-                        </div>
+                            <div class="text-danger small mt-1">
+                                {{ form.student.errors|striptags }}
+                            </div>
                         {% endif %}
-
                     </div>
-
-
-
-                    <!-- DESCRIPTION -->
 
                     <div class="mb-4">
-
-                        <label class="form-label fw-bold x-small text-uppercase text-muted">
-                            Infraction Details
-                        </label>
-
+                        <label class="form-label small fw-semibold text-slate-700">Infraction Details</label>
                         {{ form.description }}
-
                         {% if form.description.errors %}
-                        <div class="text-danger x-small mt-1">
-                            {{ form.description.errors|striptags }}
-                        </div>
+                            <div class="text-danger small mt-1">
+                                {{ form.description.errors|striptags }}
+                            </div>
                         {% endif %}
-
-                        <div class="form-text x-small text-muted mt-2">
-                            Logged incidents are permanent and visible to admin staff.
+                        <div class="form-text small text-muted mt-1">
+                            Logged incidents are permanently visible to managers and the resident.
                         </div>
-
                     </div>
 
-
-                    <button type="submit"
-                            class="btn btn-danger w-100 py-2 rounded-3 shadow-sm fw-bold">
-
-                        <i class="bi bi-shield-fill-exclamation me-2"></i>
-                        Record Violation
-
+                    <button type="submit" class="btn btn-soft-danger w-100 py-2 shadow-sm fw-semibold">
+                        <i class="fas fa-shield-alt me-1"></i> Record Violation
                     </button>
-
                 </form>
-
             </div>
-
         </div>
-
     </div>
 
 </div>
-```
 
+<!-- ═══════════════════════════════ MODALS ═══════════════════════════════ -->
+
+<!-- APPROVE MODAL -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-wrapper mb-0" style="width: 32px; height: 32px; font-size: 0.9rem; background: rgba(16,185,129,0.1); color: #059669;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold mb-0">Approve Violation Report</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="approveForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-body py-4">
+                    <p class="text-slate-700 mb-3">
+                        You are about to <strong class="text-success">approve</strong> the violation report for resident
+                        <strong id="approveStudentName" class="text-danger"></strong>.
+                    </p>
+                    <p class="text-muted small mb-3">This will add it to the official infraction log and notify the resident.</p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Review Note <span class="text-muted">(optional)</span></label>
+                        <textarea name="review_note" class="form-control" rows="3" placeholder="Add any notes or remarks for this approval..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-soft-success fw-semibold">
+                        <i class="fas fa-check me-1"></i> Approve & Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-<!-- DELETE MODAL -->
-
-<div class="modal fade"
-     id="deleteViolationModal"
-     tabindex="-1"
-     aria-hidden="true">
-
-<div class="modal-dialog">
-
-<div class="modal-content">
-
-<div class="modal-header">
-
-<h5 class="modal-title">Confirm Deletion</h5>
-
-<button type="button"
-     class="btn-close"
-     data-bs-dismiss="modal"></button>
-
+<!-- REJECT MODAL -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-wrapper mb-0" style="width: 32px; height: 32px; font-size: 0.9rem; background: rgba(239,68,68,0.1); color: #dc2626;">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold mb-0">Reject Violation Report</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="rejectForm" method="POST">
+                {% csrf_token %}
+                <div class="modal-body py-4">
+                    <p class="text-slate-700 mb-3">
+                        You are about to <strong class="text-danger">reject</strong> the violation report for resident
+                        <strong id="rejectStudentName" class="text-danger"></strong>.
+                    </p>
+                    <p class="text-muted small mb-3">The report will be dismissed and will not appear in the official infraction log.</p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Reason for Rejection <span class="text-muted">(optional)</span></label>
+                        <textarea name="review_note" class="form-control" rows="3" placeholder="Briefly explain why this report is being dismissed..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-soft-danger fw-semibold">
+                        <i class="fas fa-times me-1"></i> Reject Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-<div class="modal-body">
-
-Are you sure you want to delete the violation for <strong id="studentName"></strong>?
-
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal fade" id="deleteViolationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-4">
+                Are you sure you want to remove the violation entry for resident <strong id="deleteStudentName" class="text-danger"></strong>?
+                This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <form id="deleteViolationForm" method="POST">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-soft-danger">Delete Violation</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="modal-footer">
-
-<form id="deleteViolationForm" method="POST">
-{% csrf_token %}
-
-<button type="button"
-     class="btn btn-secondary"
-     data-bs-dismiss="modal">
-Cancel </button>
-
-<button type="submit"
-     class="btn btn-danger">
-Delete Violation </button>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
+<!-- SCRIPTS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-<style>
-
-.x-small{
-font-size:0.75rem;
-letter-spacing:0.05rem;
-}
-
-.bg-danger-soft{
-background:#fff5f5;
-color:#dc3545;
-}
-
-.avatar-soft{
-width:36px;
-height:36px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:700;
-font-size:0.9rem;
-}
-
-textarea,select{
-border-radius:8px;
-border:1px solid #e9ecef;
-font-size:0.85rem;
-}
-
-textarea:focus{
-border-color:#dc3545;
-box-shadow:0 0 0 0.2rem rgba(220,53,69,0.1);
-}
-
-.dataTables_filter input{
-border-radius:8px;
-border:1px solid #e9ecef;
-padding:0.4rem 1rem;
-margin-bottom:1rem;
-}
-
-</style>
-
 <script>
-
 $(document).ready(function(){
+    $('#violationTable').DataTable({
+        pageLength: 10,
+        order: [[3, "desc"]],
+        dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4"f>rt<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-4"ip>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search violations..."
+        }
+    });
 
-$('#violationTable').DataTable({
-pageLength:10,
-order:[[2,"desc"]],
-language:{
-search:"",
-searchPlaceholder:"Filter violations..."
-}
+    $('.dataTables_filter input').addClass('form-control').css('width', '240px');
+    $('select').addClass('form-select');
+    $('textarea').addClass('form-control');
+
+    // APPROVE MODAL
+    var approveModal = document.getElementById('approveModal');
+    if (approveModal) {
+        approveModal.addEventListener('show.bs.modal', function(event) {
+            var btn = event.relatedTarget;
+            var violationId  = btn.getAttribute('data-violation-id');
+            var studentName  = btn.getAttribute('data-student-name');
+            document.getElementById('approveStudentName').textContent = studentName;
+            document.getElementById('approveForm').action = `/management/violations/${violationId}/approve/`;
+        });
+    }
+
+    // REJECT MODAL
+    var rejectModal = document.getElementById('rejectModal');
+    if (rejectModal) {
+        rejectModal.addEventListener('show.bs.modal', function(event) {
+            var btn = event.relatedTarget;
+            var violationId  = btn.getAttribute('data-violation-id');
+            var studentName  = btn.getAttribute('data-student-name');
+            document.getElementById('rejectStudentName').textContent = studentName;
+            document.getElementById('rejectForm').action = `/management/violations/${violationId}/reject/`;
+        });
+    }
+
+    // DELETE MODAL
+    var deleteModal = document.getElementById('deleteViolationModal');
+    if (deleteModal) {
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var violationId  = button.getAttribute('data-violation-id');
+            var studentName  = button.getAttribute('data-student-name');
+            document.getElementById('deleteStudentName').textContent = studentName;
+            document.getElementById('deleteViolationForm').action = `/management/violations/delete/${violationId}/`;
+        });
+    }
 });
-
-$('select').addClass('form-select');
-$('textarea').addClass('form-control');
-
-var deleteModal=document.getElementById('deleteViolationModal');
-
-deleteModal.addEventListener('show.bs.modal',function(event){
-
-var button=event.relatedTarget;
-
-var violationId=button.getAttribute('data-violation-id');
-var studentName=button.getAttribute('data-student-name');
-
-document.getElementById('studentName').textContent=studentName;
-
-document.getElementById('deleteViolationForm').action=
-`/management/violations/delete/${violationId}/`;
-
-});
-
-});
-
 </script>
-
 {% endblock %}

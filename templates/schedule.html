@@ -1,96 +1,117 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Schedule | dormY{% endblock %}
+{% block title %}Schedule & Announcements | dormY{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="h3 mb-4 text-gray-800">Cleaning Schedule & Announcements</h1>
+<div class="container-fluid px-0">
 
-    <div class="row">
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Cleaning Schedule & Announcements</h2>
+                    <p class="text-white-50 mb-0 small">View your weekly residential cleaning duties and campus event notices.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- Cleaning Schedule -->
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-calendar-alt me-2"></i>Weekly Cleaning Schedule
-                    </h6>
+    <div class="row g-4">
+        <!-- CLEANING SCHEDULE (LEFT) -->
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(37,99,235,0.1); color: #2563eb;">
+                            <i class="fas fa-broom"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Weekly Duty Roster</h5>
+                    </div>
                 </div>
 
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th style="width:15%">Day</th>
-                                    <th style="width:20%">Group</th>
-                                    <th>Task</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">Day</th>
+                                <th style="width: 25%;">Assigned Group</th>
+                                <th>Designated Task</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             {% if total_schedules %}
                                 {% for day_name, schedules_for_day in schedules_by_day.items %}
                                     {% for schedule in schedules_for_day %}
                                     <tr>
                                         {% if forloop.first %}
-                                        <td rowspan="{{ schedules_for_day|length }}" class="align-middle fw-bold">
-                                            {{ day_name }}
+                                        <td rowspan="{{ schedules_for_day|length }}" class="align-middle fw-bold text-slate-900" style="border-right: 1px solid rgba(226, 232, 240, 0.7);">
+                                            <span class="badge bg-primary-soft fs-6 px-3 py-1">{{ day_name }}</span>
                                         </td>
                                         {% endif %}
-
-                                        <td>{{ schedule.group.name }}</td>
-                                        <td>{{ schedule.task }}</td>
+                                        <td>
+                                            <span class="fw-semibold text-primary">{{ schedule.group.name }}</span>
+                                        </td>
+                                        <td class="text-slate-700">{{ schedule.task }}</td>
                                     </tr>
                                     {% endfor %}
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="3" class="text-center text-muted fst-italic py-4">
-                                        No cleaning schedules have been set for the week.
+                                    <td colspan="3" class="text-center text-muted fst-italic py-5">
+                                        <i class="fas fa-calendar-check fa-3x text-muted opacity-25 mb-3"></i>
+                                        <p class="mb-0">No cleaning schedules have been posted for the week.</p>
                                     </td>
                                 </tr>
                             {% endif %}
-                            </tbody>
-
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Announcements -->
-        <div class="col-md-4">
-            <h5 class="text-uppercase text-muted fw-bold mb-3">
-                <i class="fas fa-bullhorn me-2"></i>Upcoming
-            </h5>
-
-            {% if announcements %}
-                {% for announcement in announcements %}
-                <div class="card shadow-sm mb-3 announcement-card">
-                    <div class="card-body">
-                        <h6 class="fw-bold">{{ announcement.title }}</h6>
-                        <p class="small">{{ announcement.content }}</p>
-                        <p class="text-muted small">
-                            {% if announcement.event_date %}
-                                <strong>Event on:</strong> {{ announcement.event_date|date:"F d, Y, P" }}<br>
-                            {% endif %}
-                            <small>Posted: {{ announcement.date_posted|date:"F d, Y, P" }}</small>
-                        </p>
+        <!-- UPCOMING ANNOUNCEMENTS (RIGHT) -->
+        <div class="col-lg-4">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(14,165,233,0.1); color: #0284c7;">
+                        <i class="fas fa-bullhorn"></i>
                     </div>
+                    <h5 class="fw-bold mb-0 text-slate-900">Upcoming Events</h5>
                 </div>
-                {% endfor %}
-            {% else %}
-                <div class="card shadow-sm">
-                    <div class="card-body text-center text-muted fst-italic">
-                        No upcoming announcements.
-                    </div>
-                </div>
-            {% endif %}
 
+                {% if announcements %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for announcement in announcements %}
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(226, 232, 240, 0.8); border-left: 4px solid var(--primary-500) !important;">
+                            <h6 class="fw-bold text-slate-900 mb-1">{{ announcement.title }}</h6>
+                            <p class="small text-muted mb-2">{{ announcement.content }}</p>
+                            
+                            <div class="small text-muted">
+                                {% if announcement.event_date %}
+                                    <span class="badge bg-warning-soft mb-1">
+                                        <i class="far fa-calendar-alt me-1"></i> {{ announcement.event_date|date:"M d, Y, g:i a" }}
+                                    </span>
+                                    <br>
+                                {% endif %}
+                                <span class="text-muted"><i class="far fa-clock me-1"></i> Posted: {{ announcement.date_posted|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted fst-italic">
+                        <i class="fas fa-bell-slash fs-3 opacity-25 mb-2"></i>
+                        <p class="mb-0 small">No upcoming announcements.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-
     </div>
+
 </div>
 {% endblock %}

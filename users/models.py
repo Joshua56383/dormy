@@ -107,3 +107,37 @@ class EmergencyContact(models.Model):
 
     def __str__(self):
         return f"Emergency Contact for {self.user.full_name}"
+
+
+# --- 4. PASSWORD RESET TOKEN ---
+import uuid
+from django.utils import timezone
+from datetime import timedelta
+
+class PasswordResetToken(models.Model):
+    """
+    One-time secure token and 6-digit OTP for password reset.
+    Expires 15 minutes after creation and can only be used once.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='password_reset_tokens',
+    )
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    otp_code = models.CharField(max_length=6, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Password Reset Token"
+        verbose_name_plural = "Password Reset Tokens"
+
+    def is_valid(self):
+        """Returns True if the token is unused and less than 15 minutes old."""
+        if self.is_used:
+            return False
+        return timezone.now() < self.created_at + timedelta(minutes=15)
+
+    def __str__(self):
+        return f"Reset token for {self.user.student_id} (OTP: {self.otp_code}, {'used' if self.is_used else 'valid'})"

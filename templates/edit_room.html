@@ -1,102 +1,124 @@
 {% extends 'basem.html' %}
 {% load static %}
 
-{% block title %}Edit Room {{ room.room_number }}{% endblock %}
+{% block title %}Edit Room {{ room.room_number }} | dormY Management{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row mb-4 align-items-center">
-        <div class="col">
-            <h2 class="fw-bold text-dark mb-1">
-                <i class="fas fa-edit text-primary me-2"></i>Edit Room #{{ room.room_number }}
-            </h2>
-            <p class="text-muted mb-0">
-                Upload photo and update room description
-            </p>
-        </div>
-        <div class="col-auto">
-            <a href="{% url 'management:manage_rooms' %}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Rooms
-            </a>
+<div class="container-fluid px-0">
+
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Edit Room #{{ room.room_number }}</h2>
+                    <p class="text-white-50 mb-0 small">Update room specifications, photo, and descriptive details.</p>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'management:manage_rooms' %}" class="btn btn-light shadow-sm fw-semibold text-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Rooms
+                </a>
+            </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-4">
+        <!-- FORM COLUMN (LEFT) -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light border-bottom p-3">
-                    <h5 class="mb-0 fw-bold">Room Details</h5>
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(37,99,235,0.1); color: #2563eb;">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-slate-900">Room Specifications</h5>
                 </div>
-                <div class="card-body p-4">
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">Room Number</label>
-                            {{ form.room_number }}
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Room Number</label>
+                        {{ form.room_number }}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-slate-700">Floor Level</label>
+                            {{ form.floor }}
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Floor</label>
-                                {{ form.floor }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Capacity</label>
-                                {{ form.capacity }}
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-slate-700">Student Capacity</label>
+                            {{ form.capacity }}
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Room Photo (JPG, JPEG, PNG - max 5MB)</label>
-                            {{ form.photo }}
-                            {% if form.photo.errors %}
-                                <div class="text-danger small mt-1">{{ form.photo.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Room Description</label>
-                            {{ form.description }}
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Save
-                            </button>
-                            <a href="{% url 'management:manage_rooms' %}" class="btn btn-secondary">Cancel</a>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Room Photo (JPG, PNG - max 5MB)</label>
+                        {{ form.photo }}
+                        {% if form.photo.errors %}
+                            <div class="text-danger small mt-1">{{ form.photo.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-slate-700">Description & Amenities</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                            <i class="fas fa-save me-1"></i> Save Changes
+                        </button>
+                        <a href="{% url 'management:manage_rooms' %}" class="btn btn-glass">Cancel</a>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <!-- PHOTO PREVIEW (RIGHT) -->
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light border-bottom p-3">
-                    <h5 class="mb-0 fw-bold">Current Photo</h5>
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(14,165,233,0.1); color: #0284c7;">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0 text-slate-900">Current Photo</h6>
                 </div>
-                <div class="card-body p-4">
-                    {% if room.photo %}
-                        <img src="{{ room.photo.url }}" alt="Room {{ room.room_number }}" class="img-fluid rounded" style="width:100%;height:250px;object-fit:cover;">
-                        <div class="mt-3 text-center">
-                            <a href="{% url 'management:delete_room_photo' room.id %}" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-trash me-1"></i>Delete Photo
-                            </a>
-                        </div>
-                    {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-image fa-3x mb-2"></i>
-                            <p>No photo uploaded yet</p>
-                        </div>
-                    {% endif %}
-                    {% if room.description %}
-                        <div class="mt-4">
-                            <h6 class="fw-bold">Description Preview</h6>
-                            <p class="text-muted small" style="white-space: pre-line;">{{ room.description }}</p>
-                        </div>
-                    {% endif %}
-                </div>
+
+                {% if room.photo %}
+                    <div class="overflow-hidden rounded-3 mb-3" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                        <img src="{{ room.photo.url }}" alt="Room {{ room.room_number }}" class="img-fluid" style="width: 100%; height: 220px; object-fit: cover;">
+                    </div>
+                    <div class="text-center mb-3">
+                        <a href="{% url 'management:delete_room_photo' room.id %}" class="btn btn-soft-danger btn-sm" onclick="return confirm('Remove current photo?');">
+                            <i class="fas fa-trash-alt me-1"></i> Delete Photo
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-5 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.5); border: 1px dashed rgba(203, 213, 225, 0.8);">
+                        <i class="fas fa-image fa-3x opacity-25 mb-2"></i>
+                        <p class="small mb-0">No photo uploaded yet</p>
+                    </div>
+                {% endif %}
+
+                {% if room.description %}
+                    <div class="pt-3 border-top" style="border-color: rgba(226, 232, 240, 0.6) !important;">
+                        <h6 class="fw-bold small text-slate-800 mb-2">Description Preview:</h6>
+                        <p class="text-muted small mb-0" style="white-space: pre-line;">{{ room.description }}</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
+
 </div>
 
-<style>
-    input, select, textarea { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ddd; }
-</style>
+<script>
+    document.querySelectorAll('.glass-card input, .glass-card select, .glass-card textarea').forEach(function(el){
+        el.classList.add('form-control');
+    });
+</script>
 {% endblock %}

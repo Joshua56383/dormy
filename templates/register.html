@@ -1,177 +1,186 @@
-{% load static %} 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | dormY</title>
+    <title>Create Account | dormY</title>
     
+    <!-- Bootstrap 5 & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/glassmorphism.css' %}">
 
     <style>
-        :root {
-          --navy-blue: #1b5e20;   /* dark green */
-          --soft-white: #ffffff;
-          --light-gray: #f4f7f6;
-          --accent: #4caf50;     /* light green accent */
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        body {
-          font-family: 'Poppins', sans-serif;
-          background-color: var(--soft-white);
-          color: #333;
-          min-height: 100vh;
-          margin: 0;
-          display: flex;
-          align-items: center;
-          position: relative;
-          overflow-x: hidden;
+        .auth-card {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: var(--radius-2xl);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(226, 232, 240, 0.6);
+            overflow: hidden;
         }
 
-        /* Green accent that stays away from the logo */
-        body::before {
-            content: "";
+        .ambient-orb {
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 30%; 
-            height: 100%;
-            background: var(--navy-blue);
-            z-index: -1;
-            clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.45;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .brand-logo-text {
-          font-weight: 700;
-          letter-spacing: 3px;
-          color: var(--navy-blue);
-          font-size: 3.5rem;
-          text-transform: uppercase;
+        .orb-1 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, #60a5fa 0%, #3b82f6 100%);
+            top: -120px;
+            right: -100px;
         }
 
-        .register-card {
-          background: white;
-          border-radius: 20px;
-          box-shadow: 0 15px 35px rgba(27, 94, 32, 0.2);
-          border: 1px solid #eee;
-        }
-
-        .form-label {
-            color: var(--navy-blue);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .form-control {
-          border-radius: 10px;
-          background-color: var(--light-gray) !important; 
-          border: 1px solid #ddd;
-          padding: 10px 15px;
-        }
-
-        .form-control:focus {
-            background-color: #fff !important;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.1);
-        }
-
-        .btn-navy {
-          background-color: var(--navy-blue);
-          color: white;
-          border-radius: 10px;
-          font-weight: 600;
-          padding: 12px;
-          transition: 0.3s;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-
-        .btn-navy:hover {
-          background-color: var(--accent);
-          color: white;
-          transform: translateY(-2px);
-        }
-
-        .university-logo {
-            max-height: 150px;
-            width: auto;
-            margin-bottom: 15px;
+        .orb-2 {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, #38bdf8 0%, #0ea5e9 100%);
+            bottom: -90px;
+            left: -90px;
         }
         
-        .sub-text {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        /* Fix for Django form fields to look like Bootstrap */
-        input {
+        .django-field-wrapper input,
+        .django-field-wrapper select,
+        .django-field-wrapper textarea {
             width: 100%;
             display: block;
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            border: 1px solid rgba(203, 213, 225, 0.8) !important;
+            border-radius: var(--radius-md) !important;
+            padding: 0.65rem 1rem;
+            color: var(--slate-800);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .django-field-wrapper input:focus,
+        .django-field-wrapper select:focus,
+        .django-field-wrapper textarea:focus {
+            background-color: #ffffff !important;
+            border-color: var(--primary-500) !important;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
+            outline: none;
         }
     </style>
 </head>
 
 <body>
 
-<div class="container py-5">
-    <div class="row align-items-center">
-        
-        <div class="col-lg-6 text-center text-lg-start ps-lg-5 mb-5 mb-lg-0">
-            <img src="{% static 'images/logo.png' %}" alt="University Logo" class="university-logo">
-            <h1 class="brand-logo-text">dormY</h1>
-            <p class="sub-text">Join the University Dormitory Portal</p>
-        </div>
+<div class="auth-wrapper">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
 
-        <div class="col-lg-6 px-lg-5">
-            <div class="card register-card">
-                <div class="card-body p-4 p-md-5">
-                    <h3 class="text-center mb-4 fw-bold" style="color: var(--navy-blue);">Create Account</h3>
-
-                    <form method="POST">
-                        {% csrf_token %}
-                        
-                        {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label }}</label>
-                            <div class="django-field-wrapper">
-                                {{ field }}
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="row align-items-center justify-content-center">
+            
+            <!-- Left Branding Hero -->
+            <div class="col-lg-5 text-center text-lg-start mb-5 mb-lg-0 px-lg-4">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.15); color: var(--primary-700); font-weight: 600; font-size: 0.8rem;">
+                    <i class="fas fa-user-plus"></i> Student Registration
+                </div>
+                <div class="d-flex align-items-center justify-content-center justify-content-lg-start gap-3 mb-3">
+                    <img src="{% static 'images/logo.png' %}" alt="dormY Logo" style="height: 56px; width: auto; object-fit: contain;">
+                    <h1 class="display-5 fw-bold text-slate-900 mb-0" style="color: var(--slate-900);">dormY</h1>
+                </div>
+                <p class="lead text-muted mb-4">
+                    Create your student resident profile to apply for rooms, track cleaning schedules, and connect with dormitory staff.
+                </p>
+                <div class="d-none d-lg-block">
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255,255,255,0.8);">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fas fa-check-circle text-primary fs-3"></i>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Instant Access</h6>
+                                <p class="mb-0 small text-muted">View live room vacancies right after registration.</p>
                             </div>
-                            {% if field.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ field.errors|striptags }}
-                                </div>
-                            {% endif %}
                         </div>
-                        {% endfor %}
-
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-navy">
-                                Complete Registration <i class="fas fa-arrow-right ms-2"></i>
-                            </button>
-                        </div>
-                    </form>
-
-                    <div class="text-center mt-4">
-                        <p class="mb-0 text-muted">Already have a room? 
-                            <a href="{% url 'users:login' %}" class="fw-bold text-decoration-none" style="color: var(--accent);">Login Here</a>
-                        </p>
                     </div>
                 </div>
             </div>
-        </div>
 
+            <!-- Right Registration Form Card -->
+            <div class="col-lg-6 col-md-10">
+                <div class="card auth-card">
+                    <div class="card-body p-4 p-sm-5">
+                        <div class="text-center mb-4">
+                            <h3 class="fw-bold text-slate-900 mb-1" style="color: var(--slate-900);">Create Student Account</h3>
+                            <p class="text-muted small">Please complete the required information below</p>
+                        </div>
+
+                        {% if messages %}
+                            <div class="mb-4">
+                                {% for message in messages %}
+                                    <div class="alert alert-danger small py-2 mb-2" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ field.label }}</label>
+                                <div class="django-field-wrapper">
+                                    {{ field }}
+                                </div>
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="fas fa-exclamation-triangle me-1"></i> {{ field.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <div class="text-muted small mt-1">
+                                        {{ field.help_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                                    Complete Registration <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center pt-3 mt-3 border-top" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                            <p class="mb-0 text-muted small">
+                                Already have an account? 
+                                <a href="{% url 'users:login' %}" class="fw-semibold text-primary text-decoration-none">
+                                    Sign In Here
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    document.querySelectorAll('input').forEach(function(el){
-        el.classList.add('form-control');
-    });
-</script>
-
 </body>
 </html>

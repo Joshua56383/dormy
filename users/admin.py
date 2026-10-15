@@ -12,8 +12,9 @@ class ViolationInline(admin.TabularInline):
     - Provides extra fields for quick editing.
     """
     model = Violation
+    fk_name = 'student'
     extra = 1  # Show one empty form for adding a new violation
-    fields = ('type_of_violation', 'description', 'date_committed', 'penalty_notes')
+    fields = ('description', 'date_committed', 'reported_by')
     ordering = ('-date_committed',)
 
 @admin.register(User)

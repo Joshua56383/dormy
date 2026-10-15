@@ -1,277 +1,345 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Rooms | dormY{% endblock %}
+{% block title %}Room Directory | dormY{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container-fluid px-0">
 
-<h2 class="page-title">Room Directory</h2>
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Room Directory</h2>
+                    <p class="text-white-50 mb-0 small">Browse dormitory units, view room capacities, and request room placement.</p>
+                </div>
+            </div>
+            <div>
+                <span class="badge bg-white text-primary fw-semibold px-3 py-2 fs-6">
+                    {{ rooms|length }} Total Rooms
+                </span>
+            </div>
+        </div>
+    </div>
 
-<!-- FILTER BUTTONS -->
-<div class="d-flex justify-content-center flex-wrap gap-2 mb-4" id="room-filters">
+    <!-- FILTER BUTTONS -->
+    <div class="d-flex justify-content-center flex-wrap gap-2 mb-4" id="room-filters">
+        <button class="btn btn-sm btn-glass active px-3 py-2" data-filter="all">
+            <i class="fas fa-layer-group me-1"></i> All Units
+        </button>
+        <button class="btn btn-sm btn-glass text-success px-3 py-2" data-filter="available">
+            <i class="fas fa-check-circle me-1"></i> Available
+        </button>
+        <button class="btn btn-sm btn-glass text-danger px-3 py-2" data-filter="full">
+            <i class="fas fa-users-slash me-1"></i> Full
+        </button>
+        <button class="btn btn-sm btn-glass text-warning px-3 py-2" data-filter="maintenance">
+            <i class="fas fa-tools me-1"></i> Maintenance
+        </button>
+    </div>
 
-<button class="btn btn-sm btn-outline-primary active" data-filter="all">
-<i class="fas fa-layer-group me-1"></i>All
-</button>
+    <style>
+        .room-details-card {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .room-details-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px -4px rgba(37, 99, 235, 0.12), 0 0 0 1px rgba(59, 130, 246, 0.3) !important;
+        }
+    </style>
 
-<button class="btn btn-sm btn-outline-success" data-filter="available">
-<i class="fas fa-check-circle me-1"></i>Available
-</button>
+    <div class="row g-4">
+        {% for room in rooms %}
+        <div class="col-md-6 col-lg-4 room-card"
+             data-status="{% if room.status == 'full' %}full{% elif room.status == 'maintenance' %}maintenance{% else %}available{% endif %}">
+            
+            <div class="glass-card h-100 p-4 d-flex flex-column justify-content-between room-details-card"
+                 role="button"
+                 style="cursor: pointer;"
+                 data-bs-toggle="modal"
+                 data-bs-target="#roomModal{{ room.id }}"
+                 title="Click to view details for Room {{ room.room_number }}">
+                <div>
+                    <!-- ROOM HEADER -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <span class="badge bg-primary-soft fs-6 px-3 py-2">
+                                <i class="fas fa-door-open me-1 text-primary"></i> Room {{ room.room_number }}
+                            </span>
+                        </h5>
 
-<button class="btn btn-sm btn-outline-danger" data-filter="full">
-<i class="fas fa-users-slash me-1"></i>Full
-</button>
+                        <span class="badge
+                            {% if room.status == 'full' %}bg-danger-soft
+                            {% elif room.status == 'maintenance' %}bg-warning-soft
+                            {% else %}bg-success-soft{% endif %}">
+                            {{ room.get_status_display }}
+                        </span>
+                    </div>
 
-<button class="btn btn-sm btn-outline-warning" data-filter="maintenance">
-<i class="fas fa-tools me-1"></i>Maintenance
-</button>
+                    {% if room.photo %}
+                    <div class="mb-3 overflow-hidden rounded-3" style="border: 1px solid rgba(226, 232, 240, 0.7);">
+                        <img src="{{ room.photo.url }}" alt="Room {{ room.room_number }}" class="img-fluid" style="height: 180px; width: 100%; object-fit: cover;">
+                    </div>
+                    {% endif %}
 
-</div>
+                    {% if room.description %}
+                    <p class="text-muted small mb-3" style="white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        {{ room.description }}
+                    </p>
+                    {% else %}
+                    <p class="text-muted small fst-italic mb-3">Clean residential room with standard dorm amenities.</p>
+                    {% endif %}
 
+                    <!-- METRICS -->
+                    <div class="d-flex align-items-center gap-3 small text-muted mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.6) !important;">
+                        <span><i class="fas fa-building me-1 text-primary"></i> {{ room.get_floor_display }}</span>
+                        <span>•</span>
+                        <span><i class="fas fa-users me-1 text-primary"></i> {{ room.residents.count }}/{{ room.capacity }} Occupants</span>
+                    </div>
 
-<div class="row">
+                    <!-- OCCUPANTS LIST -->
+                    <div class="mb-3">
+                        <label class="small text-muted fw-semibold mb-2">Current Occupants</label>
+                        <div class="d-flex flex-column gap-2">
+                            {% for resident in room.residents.all %}
+                            <div class="d-flex align-items-center p-2 rounded-2" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.6);">
+                                {% if resident.profile_picture %}
+                                    <img src="{{ resident.profile_picture.url }}" class="rounded-circle me-2 avatar-img" width="28" height="28" alt="{{ resident.full_name }}">
+                                {% else %}
+                                    <div class="rounded-circle me-2 avatar-placeholder" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                                <span class="small fw-semibold text-slate-800">{{ resident.full_name }}</span>
+                            </div>
+                            {% empty %}
+                            <span class="small text-muted fst-italic">No occupants assigned yet.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
 
-{% for room in rooms %}
+                <!-- ACTION BUTTON AREA -->
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(226, 232, 240, 0.6) !important;">
+                    <button type="button" class="btn btn-glass btn-sm" data-bs-toggle="modal" data-bs-target="#roomModal{{ room.id }}" onclick="event.stopPropagation();">
+                        <i class="fas fa-info-circle me-1 text-primary"></i> Details
+                    </button>
 
-<div class="col-md-6 col-lg-4 mb-4 room-card"
-data-status="{% if room.status == 'full' %}full{% elif room.status == 'maintenance' %}maintenance{% else %}available{% endif %}">
-
-<div class="dashboard-card h-100 room-hover">
-
-<!-- ROOM HEADER -->
-<div class="d-flex justify-content-between align-items-center mb-2">
-
-                    <h5 class="fw-bold mb-0">
-                        <i class="fas fa-door-open text-success me-2"></i>
-                        <a href="{% url 'rooms:room_detail' room.id %}" class="text-decoration-none" style="color: inherit;">
-                            Room {{ room.room_number }}
+                    {% if room == current_user_room %}
+                        <span class="badge bg-primary-soft px-3 py-2" onclick="event.stopPropagation();">
+                            <i class="fas fa-check-circle me-1"></i> Assigned Room
+                        </span>
+                    {% elif room == pending_request_room %}
+                        <span class="badge bg-warning-soft px-3 py-2" onclick="event.stopPropagation();">
+                            <i class="fas fa-clock me-1"></i> Request Pending
+                        </span>
+                    {% elif room.status == 'available' %}
+                        <a href="{% url 'rooms:request_assignment' room.id %}"
+                           onclick="event.stopPropagation();"
+                           class="btn btn-primary btn-sm {% if not can_make_request %}disabled{% endif %}">
+                            <i class="fas fa-plus-circle me-1"></i> Request Room
                         </a>
-                    </h5>
-
-<span class="badge
-{% if room.status == 'full' %}bg-danger
-{% elif room.status == 'maintenance' %}bg-warning text-dark
-{% else %}bg-success{% endif %}">
-
-{{ room.get_status_display }}
-
-</span>
-
-</div>
-
-
-                {% if room.photo %}
-                <div class="mb-3 text-center">
-                    <img src="{{ room.photo.url }}" alt="Room {{ room.room_number }}" class="img-fluid rounded" style="height: 200px; width: 100%; object-fit: cover;">
+                    {% endif %}
                 </div>
-                {% endif %}
-                {% if room.description %}
-                <div class="mb-3">
-                    <p class="text-muted small" style="white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ room.description }}</p>
+
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-door-closed fa-3x text-muted opacity-25 mb-3"></i>
+            <h5 class="fw-bold text-slate-800">No rooms found</h5>
+            <p class="text-muted small">Please contact dorm management.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ROOM DETAILS POPUP MODALS -->
+    {% for room in rooms %}
+    <div class="modal fade" id="roomModal{{ room.id }}" tabindex="-1" aria-labelledby="roomModalLabel{{ room.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content glass-card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(24px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.8);">
+                
+                <!-- Modal Header -->
+                <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge bg-primary-soft text-primary fs-5 px-3 py-2 fw-bold" id="roomModalLabel{{ room.id }}">
+                            <i class="fas fa-door-open me-2"></i> Room {{ room.room_number }}
+                        </span>
+                        <span class="badge fs-6 px-3 py-2
+                            {% if room.status == 'full' %}bg-danger-soft text-danger
+                            {% elif room.status == 'maintenance' %}bg-warning-soft text-warning
+                            {% else %}bg-success-soft text-success{% endif %}">
+                            {{ room.get_status_display }}
+                        </span>
+                    </div>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                {% else %}
-                <div class="mb-3">
-                    <p class="text-muted small fst-italic">No room description available.</p>
+
+                <!-- Modal Body -->
+                <div class="modal-body p-4">
+                    
+                    <!-- Room Photo -->
+                    {% if room.photo %}
+                    <div class="mb-4 overflow-hidden rounded-4 shadow-sm" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                        <img src="{{ room.photo.url }}" alt="Room {{ room.room_number }}" class="img-fluid w-100" style="max-height: 320px; object-fit: cover;">
+                    </div>
+                    {% else %}
+                    <div class="mb-4 py-4 rounded-4 text-center bg-light text-muted" style="border: 1px dashed rgba(226, 232, 240, 0.9);">
+                        <i class="fas fa-image fa-3x opacity-25 mb-2"></i>
+                        <div class="small fw-semibold">No photo uploaded for Room {{ room.room_number }}</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Metrics Grid -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 rounded-3 text-center" style="background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <span class="text-muted small d-block mb-1">Floor Level</span>
+                                <span class="fw-bold text-slate-900 fs-6">
+                                    <i class="fas fa-building me-1 text-primary"></i> {{ room.get_floor_display }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 rounded-3 text-center" style="background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <span class="text-muted small d-block mb-1">Total Capacity</span>
+                                <span class="fw-bold text-slate-900 fs-6">
+                                    <i class="fas fa-users me-1 text-primary"></i> {{ room.capacity }} Beds
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 rounded-3 text-center" style="background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <span class="text-muted small d-block mb-1">Occupancy</span>
+                                <span class="fw-bold text-slate-900 fs-6">
+                                    <i class="fas fa-user-friends me-1 text-primary"></i> {{ room.residents.count }}/{{ room.capacity }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 rounded-3 text-center" style="background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <span class="text-muted small d-block mb-1">Status</span>
+                                <span class="fw-bold fs-6
+                                    {% if room.status == 'full' %}text-danger
+                                    {% elif room.status == 'maintenance' %}text-warning
+                                    {% else %}text-success{% endif %}">
+                                    {{ room.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Room Description & Amenities -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-slate-900 mb-2">
+                            <i class="fas fa-align-left me-1 text-primary"></i> Room Description & Amenities
+                        </h6>
+                        <div class="p-3 rounded-3" style="background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(226, 232, 240, 0.8);">
+                            {% if room.description %}
+                                <p class="text-slate-700 mb-0 small" style="white-space: pre-line; line-height: 1.7;">{{ room.description }}</p>
+                            {% else %}
+                                <p class="text-muted fst-italic mb-0 small">Standard student housing room equipped with personal study desk, bed frame, closet, and electrical outlets.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Current Occupants -->
+                    <div>
+                        <h6 class="fw-bold text-slate-900 mb-2">
+                            <i class="fas fa-user-friends me-1 text-primary"></i> Current Occupants ({{ room.residents.count }}/{{ room.capacity }})
+                        </h6>
+                        <div class="row g-2">
+                            {% for resident in room.residents.all %}
+                            <div class="col-sm-6">
+                                <div class="d-flex align-items-center p-2 rounded-3" style="background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                    {% if resident.profile_picture %}
+                                        <img src="{{ resident.profile_picture.url }}" class="rounded-circle me-2 avatar-img" width="36" height="36" alt="{{ resident.full_name }}" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded-circle me-2 avatar-placeholder d-flex align-items-center justify-content-center bg-primary-soft text-primary" style="width: 36px; height: 36px; font-size: 0.85rem;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="overflow-hidden">
+                                        <div class="small fw-semibold text-slate-800 text-truncate">{{ resident.full_name }}</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">Resident</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12">
+                                <div class="p-3 text-center text-muted fst-italic rounded-3" style="background: rgba(248, 250, 252, 0.6); border: 1px dashed rgba(226, 232, 240, 0.8);">
+                                    No occupants assigned yet. This room has {{ room.capacity }} vacant bed spaces.
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
                 </div>
-                {% endif %}
 
-                <!-- ROOM INFO -->
-                <h6 class="text-muted mb-3">
+                <!-- Modal Footer -->
+                <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-between align-items-center">
+                    <button type="button" class="btn btn-glass px-4" data-bs-dismiss="modal">
+                        Close
+                    </button>
 
-                    <i class="fas fa-building me-1"></i>
-                    {{ room.get_floor_display }}
+                    <div>
+                        {% if room == current_user_room %}
+                            <span class="badge bg-primary-soft px-3 py-2 fs-6">
+                                <i class="fas fa-check-circle me-1"></i> Assigned Room
+                            </span>
+                        {% elif room == pending_request_room %}
+                            <span class="badge bg-warning-soft px-3 py-2 fs-6">
+                                <i class="fas fa-clock me-1"></i> Request Pending
+                            </span>
+                        {% elif room.status == 'available' %}
+                            <a href="{% url 'rooms:request_assignment' room.id %}"
+                               class="btn btn-primary px-4 shadow-sm {% if not can_make_request %}disabled{% endif %}">
+                                <i class="fas fa-plus-circle me-1"></i> Request Room
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
 
-                    <span class="mx-2">|</span>
-
-                    <i class="fas fa-users me-1"></i>
-                    {{ room.residents.count }}/{{ room.capacity }} Occupants
-
-                </h6>
-
-
-                <!-- RESIDENT LIST -->
-                <ul class="list-group list-group-flush">
-
-{% for resident in room.residents.all %}
-
-<li class="list-group-item d-flex align-items-center">
-
-{% if resident.profile_picture %}
-<img src="{{ resident.profile_picture.url }}"
-class="rounded-circle me-3"
-width="36"
-height="36"
-style="object-fit:cover;">
-{% else %}
-<div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-secondary text-white"
-style="width:36px;height:36px;">
-<i class="fas fa-user"></i>
-</div>
-{% endif %}
-
-<span class="fw-medium">{{ resident.full_name }}</span>
-
-</li>
-
-{% empty %}
-
-<li class="list-group-item text-muted">
-<i class="fas fa-user-slash me-1"></i>
-No occupants yet.
-</li>
-
-{% endfor %}
-
-</ul>
-
-
-<!-- ACTION AREA -->
-<div class="d-flex justify-content-end mt-3">
-
-{% if room == current_user_room %}
-
-<span class="badge bg-primary-soft px-3 py-2">
-<i class="fas fa-location-dot me-1"></i>
-You are here
-</span>
-
-{% elif room == pending_request_room %}
-
-<span class="badge bg-warning-soft px-3 py-2">
-<i class="fas fa-clock me-1"></i>
-Request Pending
-</span>
-
-{% elif room.status == 'available' %}
-
-<a href="{% url 'rooms:request_assignment' room.id %}"
-class="btn btn-primary-soft btn-sm
-{% if not can_make_request %}disabled{% endif %}"
-{% if not can_make_request %}aria-disabled="true"{% endif %}>
-
-<i class="fas fa-plus-circle me-1"></i>
-Request to Join
-
-</a>
-
-{% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 
 </div>
-
-</div>
-</div>
-
-{% empty %}
-
-<div class="col-12">
-<p class="text-center text-muted mt-5">
-<i class="fas fa-door-closed fa-2x mb-2"></i><br>
-No rooms found.
-</p>
-</div>
-
-{% endfor %}
-
-</div>
-</div>
-
-<style>
-
-/* Filter Buttons Active */
-
-#room-filters .btn.active{
-color:#fff;
-transform:translateY(-2px);
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
-
-#room-filters .btn-outline-primary.active{
-background:#4361ee;
-border-color:#4361ee;
-}
-
-#room-filters .btn-outline-success.active{
-background:#198754;
-border-color:#198754;
-}
-
-#room-filters .btn-outline-danger.active{
-background:#dc3545;
-border-color:#dc3545;
-}
-
-#room-filters .btn-outline-warning.active{
-background:#ffc107;
-border-color:#ffc107;
-}
-
-/* Room Hover */
-
-.room-hover{
-transition:all 0.3s ease;
-}
-
-.room-hover:hover{
-transform:translateY(-6px);
-box-shadow:0 15px 35px rgba(0,0,0,0.15);
-}
-
-/* Filtering Animation */
-
-.room-card{
-transition:opacity 0.35s ease, transform 0.35s ease;
-transform:scale(1);
-}
-
-.room-card.hidden{
-opacity:0;
-transform:scale(0.95);
-display:none;
-}
-
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const filterContainer = document.getElementById('room-filters');
+    if (!filterContainer) return;
 
-const filterContainer = document.getElementById('room-filters');
-if (!filterContainer) return;
+    const filterButtons = filterContainer.querySelectorAll('button[data-filter]');
+    const roomCards = document.querySelectorAll('.room-card');
 
-const filterButtons = filterContainer.querySelectorAll('button[data-filter]');
-const roomCards = document.querySelectorAll('.room-card');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function(){
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
 
-filterButtons.forEach(button => {
+            const filter = this.getAttribute('data-filter');
 
-button.addEventListener('click', function(){
+            roomCards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                const shouldShow = (filter === 'all' || status === filter);
 
-filterButtons.forEach(btn => btn.classList.remove('active'));
-this.classList.add('active');
-
-const filter = this.getAttribute('data-filter');
-
-roomCards.forEach(card => {
-
-const status = card.getAttribute('data-status');
-const shouldShow = (filter === 'all' || status === filter);
-
-if(shouldShow){
-
-card.classList.remove('hidden');
-card.style.display='';
-
-}else{
-
-card.classList.add('hidden');
-
-}
-
-});
-
-});
-
-});
-
+                if (shouldShow) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
 });
 </script>
-
 {% endblock %}

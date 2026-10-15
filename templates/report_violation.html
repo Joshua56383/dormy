@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Report an Incident / Violation | dormY{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-danger shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Report an Incident or Violation</h2>
+                    <p class="text-white-50 mb-0 small">Notify dorm management of rule infractions, disruptions, or safety concerns.</p>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'users:dashboard' %}" class="btn btn-light shadow-sm fw-semibold text-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- FORM COLUMN (LEFT) -->
+        <div class="col-lg-7">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(239,68,68,0.1); color: #dc2626;">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-slate-900">Incident Details</h5>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Resident / Student Involved</label>
+                        {{ form.student }}
+                        {% if form.student.errors %}
+                            <div class="text-danger small mt-1">{{ form.student.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-slate-700">Detailed Description of Infraction</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">{{ form.description.errors|striptags }}</div>
+                        {% endif %}
+                        <div class="form-text small text-muted mt-2">
+                            Please be clear and factual. Specify dates, approximate time, and location if applicable.
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'users:dashboard' %}" class="btn btn-glass px-4">Cancel</a>
+                        <button type="submit" class="btn btn-soft-danger px-4 shadow-sm fw-semibold">
+                            <i class="fas fa-paper-plane me-1"></i> Submit Report to Management
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- GUIDELINES & REPORT HISTORY (RIGHT) -->
+        <div class="col-lg-5">
+            <!-- Guidelines Card -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(37,99,235,0.1); color: #2563eb;">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0 text-slate-900">Reporting Guidelines</h6>
+                </div>
+                <ul class="text-muted small ps-3 mb-0">
+                    <li class="mb-2">Reports are sent to the Dorm Master for review and verification before being officially recorded.</li>
+                    <li class="mb-2">Common reportable violations: quiet hours violations, unauthorized visitors, alcohol/smoking on premises, cleanliness neglect, property damage.</li>
+                    <li class="mb-2">You will see the review status of each report you submit below.</li>
+                    <li>False reports are subject to disciplinary action under the dormitory code of conduct.</li>
+                </ul>
+            </div>
+
+            <!-- Previous Reports by You (with status) -->
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <h6 class="fw-bold mb-0 text-slate-900">Reports You've Submitted</h6>
+                    <span class="badge bg-primary-soft">{{ reported_history|length }} Filed</span>
+                </div>
+
+                {% if reported_history %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for report in reported_history %}
+                            <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <!-- Status Row -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-semibold text-slate-800 small">
+                                        Re: {{ report.student.get_full_name|default:report.student.username }}
+                                    </span>
+                                    {% if report.status == 'pending' %}
+                                        <span class="badge bg-warning-soft">
+                                            <i class="fas fa-clock me-1"></i> Pending Review
+                                        </span>
+                                    {% elif report.status == 'approved' %}
+                                        <span class="badge bg-success-soft">
+                                            <i class="fas fa-check-circle me-1"></i> Approved
+                                        </span>
+                                    {% elif report.status == 'rejected' %}
+                                        <span class="badge bg-danger-soft">
+                                            <i class="fas fa-times-circle me-1"></i> Rejected
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Description -->
+                                <p class="text-muted small mb-2">{{ report.description|truncatewords:15 }}</p>
+
+                                <!-- Date + Review Note -->
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <span class="badge bg-secondary-soft">
+                                        <i class="far fa-calendar me-1"></i>{{ report.date_committed|date:"M d, Y" }}
+                                    </span>
+                                    {% if report.review_note %}
+                                        <span class="text-muted small fst-italic">
+                                            <i class="fas fa-comment-dots me-1"></i>"{{ report.review_note|truncatewords:8 }}"
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0 text-center py-3">
+                        <i class="fas fa-inbox fa-2x opacity-25 d-block mb-2"></i>
+                        You haven't submitted any reports yet.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.querySelectorAll('.glass-card select, .glass-card textarea').forEach(function(el){
+        el.classList.add('form-control');
+    });
+</script>
+{% endblock %}

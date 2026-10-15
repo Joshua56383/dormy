@@ -1,147 +1,128 @@
 {% extends 'basem.html' %}
+{% load static %}
 
-{% block title %}Manage Payments | DormMaster{% endblock %}
+{% block title %}Manage Payments | dormY Management{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
-<div class="container-fluid">
-    <div class="row mb-4 align-items-center">
-        <div class="col">
-            <h3 class="fw-bold text-dark mb-1">Student Payments</h3>
-            <p class="text-muted mb-0 small">Monitor and update residency financial statuses in real-time.</p>
-        </div>
-        <div class="col-auto">
-            <div class="bg-white p-2 px-3 rounded shadow-sm border border-light">
-                <span class="text-muted small px-2">Total Residents: <strong class="text-primary">{{ students_with_forms|length }}</strong></span>
+<div class="container-fluid px-0">
+
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Student Payments</h2>
+                    <p class="text-white-50 mb-0 small">Monitor and update student residency payment standing in real time.</p>
+                </div>
+            </div>
+            <div>
+                <span class="badge bg-white text-primary fw-semibold px-3 py-2 fs-6">
+                    Total Residents: {{ students_with_forms|length }}
+                </span>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0"> 
-            <div class="table-responsive p-4">
-                <table id="paymentsTable" class="table align-middle table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="border-0 text-uppercase x-small fw-bold text-muted">Student ID</th>
-                            <th class="border-0 text-uppercase x-small fw-bold text-muted">Full Name</th>
-                            <th class="border-0 text-uppercase x-small fw-bold text-muted">Payment Status</th>
-                            <th class="border-0 text-uppercase x-small fw-bold text-muted text-center">Update Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for student, form in students_with_forms %}
-                        <tr>
-                            <td><span class="badge bg-light text-dark border fw-medium">#{{ student.student_id }}</span></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class=
-                                    <span class="fw-semibold text-dark">{{ student.full_name }}</span>
-                                </div>
-                            </td>
-                            <td>
-                                {% if student.payment_status == 'fully_paid' %}
-                                    <span class="badge rounded-pill bg-success-soft text-success px-3 py-2">
-                                        <i class="bi bi-check-circle-fill me-1"></i> {{ student.get_payment_status_display }}
-                                    </span>
-                                {% elif student.payment_status == 'partially_paid' %}
-                                    <span class="badge rounded-pill bg-warning-soft text-warning px-3 py-2">
-                                        <i class="bi bi-clock-history me-1"></i> {{ student.get_payment_status_display }}
-                                    </span>
+    <!-- PAYMENTS TABLE CARD -->
+    <div class="glass-card p-4">
+        <div class="table-responsive">
+            <table id="paymentsTable" class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Payment Status</th>
+                        <th class="text-center">Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student, form in students_with_forms %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-primary-soft">#{{ student.student_id|default:student.username }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if student.profile_picture %}
+                                    <img src="{{ student.profile_picture.url }}" class="rounded-circle me-3 avatar-img" alt="{{ student.full_name }}">
                                 {% else %}
-                                    <span class="badge rounded-pill bg-danger-soft text-danger px-3 py-2">
-                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ student.get_payment_status_display }}
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <form method="post" class="d-flex gap-2 justify-content-center align-items-center">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="student_id" value="{{ student.id }}">
-                                    <div style="min-width: 150px;">
-                                        {{ form.payment_status }}
+                                    <div class="rounded-circle me-3 avatar-placeholder">
+                                        <i class="fas fa-user"></i>
                                     </div>
-                                    <button type="submit" class="btn btn-primary btn-sm px-3 rounded-2 shadow-sm">
-                                        Update
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-5">
-                                <i class="bi bi-inbox fs-1 text-muted opacity-25"></i>
-                                <p class="text-muted mt-2">No student records found in the system.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                                {% endif %}
+                                <span class="fw-semibold text-slate-900">{{ student.full_name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if student.payment_status == 'fully_paid' or student.payment_status == 'paid' %}
+                                <span class="badge bg-success-soft px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i> {{ student.get_payment_status_display }}
+                                </span>
+                            {% elif student.payment_status == 'partially_paid' or student.payment_status == 'pending' %}
+                                <span class="badge bg-warning-soft px-3 py-2">
+                                    <i class="fas fa-clock me-1"></i> {{ student.get_payment_status_display }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger-soft px-3 py-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i> {{ student.get_payment_status_display }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" class="d-flex gap-2 justify-content-center align-items-center">
+                                {% csrf_token %}
+                                <input type="hidden" name="student_id" value="{{ student.id }}">
+                                <div style="min-width: 170px;">
+                                    {{ form.payment_status }}
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm px-3 shadow-sm">
+                                    <i class="fas fa-save me-1"></i> Update
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted opacity-25 mb-3"></i>
+                            <h6 class="fw-bold text-dark">No records found</h6>
+                            <p class="text-muted small">No student payment records found in the system.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+
 </div>
 
+<!-- SCRIPTS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-<style>
-    /* Styling to complement basem.html */
-    .x-small { font-size: 0.75rem; letter-spacing: 0.025em; }
-    
-    .bg-success-soft { background-color: #e1fcef; color: #008a50; }
-    .bg-warning-soft { background-color: #fff8e6; color: #856404; }
-    .bg-danger-soft { background-color: #fceaea; color: #b02a37; }
-    .bg-primary-soft { background-color: #eef2ff; color: #4361ee; }
-    
-    .avatar-soft {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    /* Polish Django form Select inputs */
-    .table select {
-        border: 1px solid #e9ecef !important;
-        font-size: 0.85rem;
-        border-radius: 8px;
-        padding: 0.4rem 2rem 0.4rem 0.75rem;
-    }
-
-    /* DataTables Search UI */
-    .dataTables_filter input {
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-        padding: 0.5rem 1rem;
-        margin-bottom: 1rem;
-        transition: 0.2s;
-    }
-    .dataTables_filter input:focus {
-        border-color: #4361ee;
-        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
-        outline: none;
-    }
-</style>
-
 <script>
-    $(document).ready(function() {
-        $('#paymentsTable').DataTable({
-            "pageLength": 10,
-            "dom": '<"d-flex justify-content-between align-items-center mb-1"f>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
-            "language": {
-                "search": "",
-                "searchPlaceholder": "Search residents..."
-            }
-        });
-        
-        // Ensure Django form selects have the Bootstrap class
-        $('select').addClass('form-select shadow-none');
+$(document).ready(function() {
+    $('#paymentsTable').DataTable({
+        pageLength: 10,
+        dom: '<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4"f>rt<"d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-4"ip>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search student or status..."
+        }
     });
+
+    $('.dataTables_filter input')
+        .addClass('form-control')
+        .css('width', '240px');
+
+    $('table select').addClass('form-select');
+});
 </script>
 {% endblock %}

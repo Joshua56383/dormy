@@ -1,0 +1,21 @@
+DORMY - Campus Residence Portal
+Sign In Verification Code
+==================================================
+
+Hello{% if user_name %} {{ user_name }}{% endif %},
+
+We received a sign-in attempt for your DORMY account{% if student_id %} (ID: {{ student_id }}){% endif %}.
+
+    YOUR LOGIN CODE: {{ otp_code }}
+
+[!] 5-MINUTE EXPIRATION NOTICE:
+This login passcode is valid for 5 minutes only. After 5 minutes, it will expire and you will need to request a new code.
+
+[!] SECURITY REMINDER:
+- Never share this code with anyone.
+- If you did NOT attempt to sign in, someone may know your password. Please change your password immediately and contact Dorm Management.
+- DORMY staff will never ask you for your verification code.
+
+==================================================
+Delivered by DORMY (joshua.t.jacinto@gmail.com)
+(c) 2026 DORMY Campus Residence Management. All rights reserved.

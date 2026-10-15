@@ -1,0 +1,357 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Code | dormY</title>
+    
+    <!-- Bootstrap 5 & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/glassmorphism.css' %}">
+
+    <style>
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: var(--radius-2xl, 24px);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.6);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.45;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #60a5fa 0%, #3b82f6 100%);
+            top: -100px;
+            right: -100px;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #38bdf8 0%, #0ea5e9 100%);
+            bottom: -80px;
+            left: -80px;
+        }
+
+        .icon-bubble {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 1rem;
+        }
+
+        /* 6-Digit OTP Input Grid */
+        .otp-inputs-grid {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .otp-digit-input {
+            width: 52px;
+            height: 62px;
+            font-size: 28px;
+            font-weight: 800;
+            text-align: center;
+            border-radius: 14px;
+            border: 2px solid #cbd5e1;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e3a8a;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+        }
+
+        .otp-digit-input:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18), 0 4px 12px rgba(37, 99, 235, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .otp-digit-input.filled {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        @media (max-width: 480px) {
+            .otp-digit-input {
+                width: 42px;
+                height: 52px;
+                font-size: 22px;
+                border-radius: 10px;
+            }
+            .otp-inputs-grid {
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="auth-wrapper">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="row align-items-center justify-content-center">
+            
+            <div class="col-lg-5 col-md-8 col-sm-10">
+                <div class="card auth-card">
+                    <div class="card-body p-4 p-sm-5">
+                        
+                        <!-- Top Logo & Brand -->
+                        <div class="text-center mb-4">
+                            <a href="{% url 'users:login' %}" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-3">
+                                <img src="{% static 'images/logo.png' %}" alt="dormY Logo" style="height: 48px; width: auto; object-fit: contain;">
+                                <span class="h3 fw-extrabold text-slate-900 mb-0 tracking-tight" style="color: var(--slate-900, #0f172a);">dormY</span>
+                            </a>
+                        </div>
+
+                        {% if is_invalid %}
+                            <!-- State: Expired / Invalid Token -->
+                            <div class="text-center py-2">
+                                <div class="icon-bubble bg-danger bg-opacity-10 text-danger mx-auto">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <h3 class="fw-bold text-slate-900 mb-2">Code Expired or Invalid</h3>
+                                <p class="text-muted small mb-4" style="line-height: 1.6;">
+                                    This verification session has expired (valid for 15 minutes) or has already been used. Please request a fresh verification code.
+                                </p>
+
+                                <div class="d-grid gap-2 mb-3">
+                                    <a href="{% url 'users:forgot_password' %}" class="btn btn-primary btn-lg shadow-sm">
+                                        <i class="fas fa-redo me-2"></i> Request New Code
+                                    </a>
+                                    <a href="{% url 'users:login' %}" class="btn btn-light border">
+                                        Return to Sign In
+                                    </a>
+                                </div>
+                            </div>
+
+                        {% else %}
+                            <!-- State: Enter 6-Digit OTP -->
+                            <div class="text-center mb-3">
+                                <div class="icon-bubble bg-primary bg-opacity-10 text-primary mx-auto">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <h3 class="fw-bold text-slate-900 mb-1" style="color: var(--slate-900, #0f172a);">
+                                    Enter 6-Digit Code
+                                </h3>
+                                <p class="text-muted small mb-0" style="line-height: 1.6;">
+                                    We sent a 6-digit verification code to <br>
+                                    <strong class="text-dark">{{ masked_email }}</strong>
+                                </p>
+                            </div>
+
+                            <!-- Django Feedback Messages -->
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show small py-2 px-3 mb-3" role="alert">
+                                        <i class="fas fa-info-circle me-1"></i> {{ message }}
+                                        <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if error_msg %}
+                                <div class="alert alert-danger text-center small py-2 px-3 mb-3">
+                                    <i class="fas fa-exclamation-circle me-1"></i> {{ error_msg }}
+                                </div>
+                            {% endif %}
+
+                            <form method="POST" id="otpForm" novalidate>
+                                {% csrf_token %}
+
+                                <!-- 6 Digit Boxes -->
+                                <div class="otp-inputs-grid">
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-input" name="digit_1" id="digit_1" autofocus autocomplete="off" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-input" name="digit_2" id="digit_2" autocomplete="off" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-input" name="digit_3" id="digit_3" autocomplete="off" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-input" name="digit_4" id="digit_4" autocomplete="off" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-input" name="digit_5" id="digit_5" autocomplete="off" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit-input" name="digit_6" id="digit_6" autocomplete="off" required>
+                                </div>
+
+                                <input type="hidden" name="otp_code" id="hidden_otp_code">
+
+                                <!-- Timer & Expiry notice -->
+                                <div class="d-flex justify-content-between align-items-center mb-4 px-1 small text-muted">
+                                    <span>
+                                        <i class="far fa-clock text-primary me-1"></i> Code expires in: <strong id="countdownTimer" class="text-primary fw-bold">15:00</strong>
+                                    </span>
+                                    <a href="{% url 'users:resend_otp' token=reset_token.token %}" class="text-decoration-none fw-semibold text-primary" id="resendBtn">
+                                        <i class="fas fa-redo-alt me-1"></i> Resend Code
+                                    </a>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="d-grid mb-3">
+                                    <button type="submit" class="btn btn-primary btn-lg shadow-sm fw-bold" id="verifySubmitBtn">
+                                        Verify & Continue <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Fallback Direct Reset Link from Email -->
+                                <div class="text-center">
+                                    <p class="text-muted small mb-2">
+                                        Got the email? You can also <a href="{% url 'users:reset_password' token=reset_token.token %}" class="text-decoration-none fw-medium text-primary">click here to reset directly</a>
+                                    </p>
+                                    <hr class="my-3 opacity-25">
+                                    <a href="{% url 'users:login' %}" class="text-muted small text-decoration-none">
+                                        <i class="fas fa-arrow-left me-1"></i> Back to Sign In
+                                    </a>
+                                </div>
+                            </form>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const inputs = Array.from(document.querySelectorAll('.otp-digit-input'));
+    const hiddenInput = document.getElementById('hidden_otp_code');
+    const form = document.getElementById('otpForm');
+
+    if (!inputs.length) return;
+
+    // Focus the first input immediately
+    inputs[0].focus();
+
+    inputs.forEach((input, index) => {
+        // Handle single digit input and auto-advance
+        input.addEventListener('input', function (e) {
+            const val = this.value.replace(/[^0-9]/g, '');
+            this.value = val ? val[0] : '';
+
+            if (this.value) {
+                this.classList.add('filled');
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                    inputs[index + 1].select();
+                }
+            } else {
+                this.classList.remove('filled');
+            }
+            updateHiddenCode();
+        });
+
+        // Handle Backspace navigation
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Backspace') {
+                if (!this.value && index > 0) {
+                    inputs[index - 1].focus();
+                    inputs[index - 1].value = '';
+                    inputs[index - 1].classList.remove('filled');
+                    updateHiddenCode();
+                    e.preventDefault();
+                } else {
+                    this.value = '';
+                    this.classList.remove('filled');
+                    updateHiddenCode();
+                }
+            } else if (e.key === 'ArrowLeft' && index > 0) {
+                inputs[index - 1].focus();
+            } else if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+
+        // Handle Paste (e.g. copying 6-digit OTP from email or terminal)
+        input.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanDigits = pastedText.replace(/[^0-9]/g, '').slice(0, 6);
+
+            if (cleanDigits.length > 0) {
+                cleanDigits.split('').forEach((char, i) => {
+                    if (inputs[i]) {
+                        inputs[i].value = char;
+                        inputs[i].classList.add('filled');
+                    }
+                });
+                updateHiddenCode();
+
+                if (cleanDigits.length === 6) {
+                    // Auto-submit when all 6 digits pasted
+                    form.submit();
+                } else if (inputs[cleanDigits.length]) {
+                    inputs[cleanDigits.length].focus();
+                }
+            }
+        });
+    });
+
+    function updateHiddenCode() {
+        const fullCode = inputs.map(i => i.value).join('');
+        if (hiddenInput) {
+            hiddenInput.value = fullCode;
+        }
+    }
+
+    form.addEventListener('submit', function () {
+        updateHiddenCode();
+    });
+
+    // 15-minute countdown timer
+    let totalSeconds = 15 * 60;
+    const timerElem = document.getElementById('countdownTimer');
+    if (timerElem) {
+        const interval = setInterval(function () {
+            totalSeconds--;
+            if (totalSeconds <= 0) {
+                clearInterval(interval);
+                timerElem.textContent = "Expired";
+                timerElem.classList.replace('text-primary', 'text-danger');
+            } else {
+                const mins = Math.floor(totalSeconds / 60);
+                const secs = totalSeconds % 60;
+                timerElem.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
+    }
+});
+</script>
+
+</body>
+</html>

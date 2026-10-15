@@ -10,9 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from pathlib import Path
+import sys
 import os
 from pathlib import Path
+
+# Ensure UTF-8 output on Windows terminal consoles
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,7 +35,7 @@ SECRET_KEY = 'django-insecure-zb7*3_@ewshx%iz4*^_a9@fopkpy75t618@14l-j8fi7=$p!-l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'testserver']
 
 
 # Application definition
@@ -88,7 +97,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dormy', # <--- Your database name
         'USER': 'root',
-        'PASSWORD': 'Charles83.',
+        'PASSWORD': 'Josh_10_27!',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -156,3 +165,34 @@ CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token if needed
 CSRF_COOKIE_SAMESITE = 'Lax'  # CSRF protection for cross-site requests
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==============================================================================
+# EMAIL DELIVERY CONFIGURATION (DORMY)
+# ==============================================================================
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'flvowqzzwzfqjczq')
+
+# If EMAIL_HOST_PASSWORD is provided, use real Gmail SMTP; otherwise default to console backend
+if EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = os.environ.get(
+        'EMAIL_BACKEND', 
+        'django.core.mail.backends.smtp.EmailBackend'
+    )
+else:
+    EMAIL_BACKEND = os.environ.get(
+        'EMAIL_BACKEND', 
+        'django.core.mail.backends.console.EmailBackend'
+    )
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'joshua.t.jacinto@gmail.com')
+
+# Sender display name "DORMY" with sender address "joshua.t.jacinto@gmail.com"
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'DORMY <joshua.t.jacinto@gmail.com>')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# DORMY Brand Constants
+DORMY_BRAND_NAME = 'DORMY'
+DORMY_SENDER_EMAIL = 'joshua.t.jacinto@gmail.com'
+

@@ -1,0 +1,262 @@
+{% extends 'basem.html' %}
+{% load static %}
+
+{% block title %}Edit Resident - {{ resident.full_name }} | dormY Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                {% if resident.profile_picture %}
+                    <img src="{{ resident.profile_picture.url }}" class="rounded-circle me-3 shadow-sm border border-2 border-white" alt="{{ resident.full_name }}" width="64" height="64" style="object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 64px; height: 64px; font-size: 1.5rem;">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Edit Resident: {{ resident.full_name }}</h2>
+                    <p class="text-white-50 mb-0 small">
+                        Student ID: <span class="badge bg-white text-primary fw-bold">#{{ resident.student_id }}</span>
+                        {% if resident.assigned_room %}
+                            • <span class="badge bg-primary-soft text-white">Room {{ resident.assigned_room.room_number }}</span>
+                        {% else %}
+                            • <span class="badge bg-danger-soft text-white">Unassigned</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'management:manage_residents' %}" class="btn btn-light shadow-sm fw-semibold text-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Directory
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            <!-- LEFT COLUMN: Profile Image & Status -->
+            <div class="col-lg-4">
+
+                <!-- Profile Picture Card -->
+                <div class="glass-card p-4 text-center mb-4">
+                    <div class="stat-icon-wrapper mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.25rem;">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h6 class="fw-bold text-slate-900 mb-3">Resident Photo</h6>
+
+                    <div class="mb-3">
+                        {% if resident.profile_picture %}
+                            <img src="{{ resident.profile_picture.url }}" class="rounded-circle shadow-sm mb-3 border border-3 border-white" width="120" height="120" style="object-fit: cover;" alt="{{ resident.full_name }}">
+                        {% else %}
+                            <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center bg-primary text-white mb-3" style="width: 120px; height: 120px; font-size: 2.5rem;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-start">
+                        <label class="form-label small fw-semibold text-slate-700">Change Photo</label>
+                        {{ resident_form.profile_picture }}
+                        {% if resident_form.profile_picture.errors %}
+                            <div class="text-danger small mt-1">{{ resident_form.profile_picture.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Dormitory Status Card -->
+                <div class="glass-card p-4 mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(14,165,233,0.1); color: #0284c7;">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <h6 class="fw-bold mb-0 text-slate-900">Placement & Standing</h6>
+                    </div>
+
+                    <!-- Assigned Room -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Assigned Room</label>
+                        {{ resident_form.assigned_room }}
+                        {% if resident_form.assigned_room.errors %}
+                            <div class="text-danger small mt-1">{{ resident_form.assigned_room.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Payment Status -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Payment Status</label>
+                        {{ resident_form.payment_status }}
+                        {% if resident_form.payment_status.errors %}
+                            <div class="text-danger small mt-1">{{ resident_form.payment_status.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Active Toggle -->
+                    <div class="p-3 rounded-3 mt-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.8);">
+                        <div class="form-check form-switch mb-0 d-flex align-items-center gap-2">
+                            {{ resident_form.is_active }}
+                            <label class="form-check-label fw-semibold small text-slate-800" for="{{ resident_form.is_active.id_for_label }}">
+                                Account Active
+                            </label>
+                        </div>
+                        <small class="text-muted d-block mt-1">Inactive residents cannot log in to the student portal.</small>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: Personal & Academic Details + Emergency Contact -->
+            <div class="col-lg-8">
+
+                <!-- Personal & Academic Information -->
+                <div class="glass-card p-4 mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(37,99,235,0.1); color: #2563eb;">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Personal & Academic Information</h5>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-slate-700">Student ID Number</label>
+                            {{ resident_form.student_id }}
+                            {% if resident_form.student_id.errors %}
+                                <div class="text-danger small mt-1">{{ resident_form.student_id.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-slate-700">Email Address</label>
+                            {{ resident_form.email }}
+                            {% if resident_form.email.errors %}
+                                <div class="text-danger small mt-1">{{ resident_form.email.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-slate-700">First Name</label>
+                            {{ resident_form.first_name }}
+                            {% if resident_form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ resident_form.first_name.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-slate-700">Middle Name</label>
+                            {{ resident_form.middle_name }}
+                            {% if resident_form.middle_name.errors %}
+                                <div class="text-danger small mt-1">{{ resident_form.middle_name.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-slate-700">Last Name</label>
+                            {{ resident_form.last_name }}
+                            {% if resident_form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ resident_form.last_name.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-slate-700">Course / Degree Program</label>
+                            {{ resident_form.course }}
+                            {% if resident_form.course.errors %}
+                                <div class="text-danger small mt-1">{{ resident_form.course.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-slate-700">Year Level</label>
+                            {{ resident_form.year_level }}
+                            {% if resident_form.year_level.errors %}
+                                <div class="text-danger small mt-1">{{ resident_form.year_level.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-slate-700">Age</label>
+                            {{ resident_form.age }}
+                            {% if resident_form.age.errors %}
+                                <div class="text-danger small mt-1">{{ resident_form.age.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold text-slate-700">Contact Number</label>
+                        {{ resident_form.contact_number }}
+                        {% if resident_form.contact_number.errors %}
+                            <div class="text-danger small mt-1">{{ resident_form.contact_number.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Emergency Contact Information -->
+                <div class="glass-card p-4 mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(16,185,129,0.1); color: #059669;">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Emergency Contact Information</h5>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold text-slate-700">Emergency Contact Name</label>
+                            {{ emergency_form.contact_name }}
+                            {% if emergency_form.contact_name.errors %}
+                                <div class="text-danger small mt-1">{{ emergency_form.contact_name.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold text-slate-700">Relationship</label>
+                            {{ emergency_form.relationship }}
+                            {% if emergency_form.relationship.errors %}
+                                <div class="text-danger small mt-1">{{ emergency_form.relationship.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-slate-700">Emergency Phone Number</label>
+                            {{ emergency_form.phone_number }}
+                            {% if emergency_form.phone_number.errors %}
+                                <div class="text-danger small mt-1">{{ emergency_form.phone_number.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'management:manage_residents' %}" class="btn btn-glass px-4">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save me-1"></i> Save Resident Changes
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script>
+    document.querySelectorAll('.glass-card input[type="text"], .glass-card input[type="email"], .glass-card input[type="number"], .glass-card select').forEach(function(el) {
+        el.classList.add('form-control');
+    });
+</script>
+{% endblock %}

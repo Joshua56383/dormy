@@ -12,12 +12,35 @@ class Announcement(models.Model):
         return self.title
 
 class Violation(models.Model):
+    STATUS_PENDING  = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING,  'Pending Review'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+    ]
+
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='management_violations')
     description = models.TextField()
     date_committed = models.DateTimeField(default=timezone.now)
+    reported_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reported_violations')
+    # 'pending'  = submitted by a student, awaiting dorm-master review
+    # 'approved' = confirmed by dorm master (or logged directly by staff)
+    # 'rejected' = dorm master dismissed the report
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_APPROVED)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_violations')
+    review_note = models.TextField(blank=True, default='')
+
+    @property
+    def is_student_report(self):
+        """True when a non-staff resident submitted this report."""
+        return self.reported_by is not None and not self.reported_by.is_staff
 
     def __str__(self):
-        return f"Violation for {self.student} on {self.date_committed.strftime('%Y-%m-%d')}"
+        return f"Violation for {self.student} on {self.date_committed.strftime('%Y-%m-%d')} [{self.get_status_display()}]"
+
 
 class CleaningGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)

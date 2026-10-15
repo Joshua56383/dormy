@@ -4,57 +4,96 @@
 {% block title %}Room {{ room.room_number }} | dormY{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-4 text-center" style="color: var(--navy-blue);">
-                        <i class="fas fa-door-open me-2"></i>Room {{ room.room_number }}
-                    </h3>
-                    <div class="text-center mb-4">
-                        {% if room.photo %}
-                            <img src="{{ room.photo.url }}" alt="Room {{ room.room_number }}" class="img-fluid rounded" style="max-height: 400px; width: 100%; object-fit: cover;">
-                        {% else %}
-                            <img src="{% static 'images/placeholder-room.jpg' %}" alt="Room placeholder" class="img-fluid rounded" style="max-height: 400px; width: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800';">
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        <h5 class="fw-bold mb-3">Room Information</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-2"><i class="fas fa-building me-2 text-muted"></i><strong>Floor:</strong> {{ room.get_floor_display }}</p>
-                                <p class="mb-2"><i class="fas fa-users me-2 text-muted"></i><strong>Capacity:</strong> {{ room.capacity }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="mb-2"><i class="fas fa-user-friends me-2 text-muted"></i><strong>Occupants:</strong> {{ room.residents.count }}/{{ room.capacity }}</p>
-                                <p class="mb-2"><i class="fas fa-info-circle me-2 text-muted"></i><strong>Status:</strong> 
-                                    <span class="badge {% if room.status == 'available' %}bg-success{% elif room.status == 'full' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
-                                        {{ room.get_status_display }}
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <h5 class="fw-bold mb-3">Room Description</h5>
-                        {% if room.description %}
-                            <p style="white-space: pre-line; line-height: 1.8;">{{ room.description }}</p>
-                        {% else %}
-                            <p class="text-muted fst-italic">No room description available.</p>
-                        {% endif %}
-                    </div>
-                    <div class="text-center mt-4">
-                        <a href="{% url 'rooms:room_list' %}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Room Directory
-                        </a>
-                    </div>
+<div class="container-fluid px-0">
+
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                    <i class="fas fa-door-open"></i>
                 </div>
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">Room Details & Specifications</h2>
+                    <p class="text-white-50 mb-0 small">Room #{{ room.room_number }} • Floor {{ room.get_floor_display }}</p>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'rooms:room_list' %}" class="btn btn-light shadow-sm fw-semibold text-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Directory
+                </a>
             </div>
         </div>
     </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="glass-card p-4 p-md-5">
+
+                <!-- Room Image Hero -->
+                <div class="mb-4 overflow-hidden rounded-4 text-center shadow-sm" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                    {% if room.photo %}
+                        <img src="{{ room.photo.url }}" alt="Room {{ room.room_number }}" class="img-fluid" style="max-height: 420px; width: 100%; object-fit: cover;">
+                    {% else %}
+                        <div class="py-5 bg-light text-muted">
+                            <i class="fas fa-image fa-4x opacity-25 mb-3"></i>
+                            <h6>No photo uploaded for this room</h6>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Room Metrics Grid -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6 col-md-3">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.8);">
+                            <span class="text-muted small">Floor Level</span>
+                            <div class="fw-bold text-slate-900 mt-1"><i class="fas fa-building me-1 text-primary"></i> {{ room.get_floor_display }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.8);">
+                            <span class="text-muted small">Total Capacity</span>
+                            <div class="fw-bold text-slate-900 mt-1"><i class="fas fa-users me-1 text-primary"></i> {{ room.capacity }} Students</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.8);">
+                            <span class="text-muted small">Occupancy</span>
+                            <div class="fw-bold text-slate-900 mt-1"><i class="fas fa-user-friends me-1 text-primary"></i> {{ room.residents.count }}/{{ room.capacity }} Beds</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.8);">
+                            <span class="text-muted small">Unit Status</span>
+                            <div class="mt-1">
+                                <span class="badge {% if room.status == 'available' %}bg-success-soft{% elif room.status == 'full' %}bg-danger-soft{% else %}bg-warning-soft{% endif %}">
+                                    {{ room.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                    <h5 class="fw-bold text-slate-900 mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">Room Description & Amenities</h5>
+                    {% if room.description %}
+                        <p class="text-slate-700" style="white-space: pre-line; line-height: 1.8;">{{ room.description }}</p>
+                    {% else %}
+                        <p class="text-muted fst-italic">Standard student housing room equipped with personal study desk, bed frame, closet, and electrical outlets.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Back Action -->
+                <div class="text-center pt-3 border-top" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <a href="{% url 'rooms:room_list' %}" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Room Directory
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
-<style>
-    .rounded { border-radius: 12px !important; }
-</style>
 {% endblock %}

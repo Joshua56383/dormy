@@ -1,274 +1,305 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Student Dashboard | dormY{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container-fluid px-0">
 
-<div class="row">
-
-<!-- MAIN CONTENT -->
-<div class="col-md-8">
-
-<!-- Welcome Card -->
-<div class="dashboard-card mb-4">
-<div class="d-flex align-items-center">
-
-{% if user.profile_picture %}
-<img src="{{ user.profile_picture.url }}"
-class="rounded-circle me-3 shadow-sm"
-alt="Profile Picture"
-width="70"
-height="70"
-style="object-fit:cover;border:3px solid #e8f5e9;">
-{% else %}
-<div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-secondary text-white"
-style="width:70px;height:70px;">
-<i class="fas fa-user fa-lg"></i>
-</div>
-{% endif %}
-
-<div>
-<h3 class="fw-bold mb-1">Welcome, {{ user.first_name }}!</h3>
-
-{% if display_room %}
-<p class="text-muted mb-0">
-You are assigned to <strong>Room {{ display_room.room_number }}</strong>.
-</p>
-{% else %}
-<p class="text-muted mb-0">
-You are not currently assigned to a room.
-</p>
-{% endif %}
-</div>
-
-</div>
-</div>
-
-
-<!-- Roommates -->
-<div class="dashboard-card mb-4">
-
-<h5 class="fw-bold mb-3">
-<i class="fas fa-users me-2 text-success"></i>Your Roommates
-</h5>
-
-{% if display_roommates %}
-
-<ul class="list-group list-group-flush">
-
-{% for roommate in display_roommates %}
-
-<li class="list-group-item d-flex align-items-center">
-
-{% if roommate.profile_picture %}
-<img src="{{ roommate.profile_picture.url }}"
-class="rounded-circle me-3"
-width="45"
-height="45"
-style="object-fit:cover;">
-{% else %}
-<div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-secondary text-white"
-style="width:45px;height:45px;">
-<i class="fas fa-user"></i>
-</div>
-{% endif %}
-
-<div class="d-flex flex-column">
-
-<span class="fw-medium">{{ roommate.full_name }}</span>
-
-<small class="text-muted">
-
-Status:
-
-<span class="badge
-{% if roommate.payment_status == 'paid' %}bg-success-soft
-{% elif roommate.payment_status == 'pending' %}bg-warning-soft
-{% else %}bg-danger-soft{% endif %}">
-
-{{ roommate.get_payment_status_display }}
-
-</span>
-
-</small>
-
-</div>
-
-</li>
-
-{% endfor %}
-
-</ul>
-
-{% else %}
-
-<p class="text-muted mb-0">You have no roommates at the moment.</p>
-
-{% endif %}
-
-</div>
-
-<!-- My Requests -->
-<div class="dashboard-card mb-4">
-    <h5 class="fw-bold mb-3">
-        <i class="fas fa-clipboard-list me-2 text-success"></i>My Requests
-    </h5>
-
-    <!-- New Request Form -->
-    <form method="post" class="mb-4">
-        {% csrf_token %}
-        {{ request_form.as_p }}
-        <button type="submit" class="btn btn-primary">Submit Request</button>
-    </form>
-
-    <!-- Request History -->
-    <h6 class="fw-bold mb-3">Request History</h6>
-    {% if user_requests %}
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Description</th>
-                        <th>Date Submitted</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for req in user_requests %}
-                        <tr>
-                            <td>{{ req.get_request_type_display }}</td>
-                            <td>{{ req.description }}</td>
-                            <td>{{ req.date_submitted|date:"M d, Y" }}</td>
-                            <td>
-                                <span class="badge 
-                                    {% if req.status == 'approved' %}bg-success-soft
-                                    {% elif req.status == 'pending' %}bg-warning-soft
-                                    {% else %}bg-danger-soft{% endif %}">
-                                    {{ req.get_status_display }}
-                                </span>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- Glassmorphic Welcome Banner -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" class="rounded-circle me-3 shadow-sm border border-2 border-white" alt="Profile Picture" width="72" height="72" style="object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 72px; height: 72px; font-size: 1.75rem;">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <span class="badge bg-white text-primary fw-semibold px-3 py-1 mb-2">Resident Portal</span>
+                    <h2 class="fw-bold mb-1 text-white">Welcome, {{ user.first_name|default:user.username }}!</h2>
+                    {% if display_room %}
+                        <p class="text-white-50 mb-0">
+                            Assigned to <span class="text-white fw-bold">Room {{ display_room.room_number }}</span>
+                        </p>
+                    {% else %}
+                        <p class="text-white-50 mb-0">
+                            You are not currently assigned to a room. <a href="{% url 'rooms:available_rooms' %}" class="text-white text-decoration-underline fw-semibold">View Vacancies</a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <button type="button" class="btn btn-light shadow-sm fw-semibold text-primary" data-bs-toggle="modal" data-bs-target="#accountSettingsModal">
+                    <i class="fas fa-user-circle me-1"></i> My Profile
+                </button>
+            </div>
         </div>
-    {% else %}
-        <p class="text-muted mb-0">You have not submitted any requests.</p>
-    {% endif %}
+    </div>
+
+    <div class="row g-4">
+        <!-- MAIN CONTENT (LEFT) -->
+        <div class="col-lg-8">
+
+            <!-- Roommates Card -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem;">
+                            <i class="fas fa-users text-primary"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Roommates</h5>
+                    </div>
+                    {% if display_room %}
+                        <span class="badge bg-primary-soft">Room {{ display_room.room_number }}</span>
+                    {% endif %}
+                </div>
+
+                {% if display_roommates %}
+                    <div class="row g-3">
+                        {% for roommate in display_roommates %}
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3 d-flex align-items-center justify-content-between" style="background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                    <div class="d-flex align-items-center">
+                                        {% if roommate.profile_picture %}
+                                            <img src="{{ roommate.profile_picture.url }}" class="rounded-circle me-3 avatar-img" width="44" height="44" alt="{{ roommate.full_name }}">
+                                        {% else %}
+                                            <div class="rounded-circle me-3 avatar-placeholder" style="width: 44px; height: 44px;">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="fw-semibold mb-0 text-slate-800">{{ roommate.full_name }}</h6>
+                                            <small class="text-muted">{{ roommate.email|default:"Resident" }}</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge {% if roommate.payment_status == 'paid' %}bg-success-soft{% elif roommate.payment_status == 'pending' %}bg-warning-soft{% else %}bg-danger-soft{% endif %}">
+                                        {{ roommate.get_payment_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-friends fs-3 text-muted opacity-50 mb-2"></i>
+                        <p class="text-muted mb-0 small">No roommates assigned at the moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Announcements -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(14,165,233,0.1); color: #0284c7;">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Campus & Dorm Announcements</h5>
+                    </div>
+                </div>
+
+                {% if announcements %}
+                    {% for announcement in announcements %}
+                        <div class="p-3 mb-3 rounded-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.8); border-left: 4px solid var(--primary-500) !important;">
+                            <h6 class="fw-bold text-slate-900 mb-1">{{ announcement.title }}</h6>
+                            <p class="text-muted small mb-2">
+                                {{ announcement.content|linebreaksbr }}
+                            </p>
+                            <small class="text-muted">
+                                <i class="far fa-clock me-1"></i> {{ announcement.date_posted|date:"M d, Y" }}
+                            </small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small text-center py-3 mb-0">No new announcements at this time.</p>
+                {% endif %}
+            </div>
+
+            <!-- Student Requests Card -->
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(99,102,241,0.1); color: #6366f1;">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Submit a Request</h5>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ request_form.as_p }}
+                    </div>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-paper-plane me-1"></i> Submit Request
+                    </button>
+                </form>
+
+                <!-- History -->
+                <h6 class="fw-bold text-slate-800 mb-3 pt-2 border-top" style="border-color: rgba(226, 232, 240, 0.7) !important;">Your Request History</h6>
+                {% if user_requests %}
+                    <div class="table-responsive rounded-3" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in user_requests %}
+                                    <tr>
+                                        <td class="fw-semibold text-slate-800">{{ req.get_request_type_display }}</td>
+                                        <td class="small text-muted">{{ req.description|truncatewords:15 }}</td>
+                                        <td class="small text-muted">{{ req.date_submitted|date:"M d, Y" }}</td>
+                                        <td>
+                                            <span class="badge {% if req.status == 'approved' %}bg-success-soft{% elif req.status == 'pending' %}bg-warning-soft{% else %}bg-danger-soft{% endif %}">
+                                                {{ req.get_status_display }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">You have not submitted any requests yet.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- SIDEBAR (RIGHT) -->
+        <div class="col-lg-4">
+
+            <!-- Payment Status Card -->
+            <div class="glass-card p-4 mb-4 text-center">
+                <div class="stat-icon-wrapper mx-auto mb-3" style="width: 52px; height: 52px; font-size: 1.35rem; background: rgba(16,185,129,0.1); color: #059669;">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h5 class="fw-bold text-slate-900 mb-1">Dormitory Fee Status</h5>
+                <p class="text-muted small mb-3">Your recorded payment standing for the current term</p>
+
+                <div class="p-3 rounded-4 mb-2" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.8);">
+                    <span class="badge fs-6 px-4 py-2 {% if user.payment_status == 'paid' %}bg-success-soft{% elif user.payment_status == 'pending' %}bg-warning-soft{% else %}bg-danger-soft{% endif %}">
+                        {{ payment_status }}
+                    </span>
+                </div>
+                <small class="text-muted">Contact dorm management if you notice any discrepancies.</small>
+            </div>
+
+            <!-- Violations Card -->
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(239,68,68,0.1); color: #dc2626;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Conduct & Violations</h5>
+                    </div>
+                </div>
+
+                {% if user_violations %}
+                    <div class="d-flex flex-column gap-2 mb-3">
+                        {% for violation in user_violations %}
+                            <div class="p-3 rounded-3" style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);">
+                                <h6 class="fw-bold text-danger mb-1">{{ violation.description }}</h6>
+                                <small class="text-muted">
+                                    <i class="far fa-calendar-alt me-1"></i> Recorded: {{ violation.date_committed|date:"M d, Y" }}
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3 mb-3">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-2" style="background: rgba(16,185,129,0.1); color: #10b981; width: 48px; height: 48px;">
+                            <i class="fas fa-award fs-5"></i>
+                        </div>
+                        <h6 class="fw-bold text-slate-800 mb-0 small">Clear Standing</h6>
+                        <p class="text-muted small mb-0">No violations on record.</p>
+                    </div>
+                {% endif %}
+
+                <!-- Report Incident Button -->
+                <button type="button" class="btn btn-soft-danger btn-sm w-100 shadow-sm" data-bs-toggle="modal" data-bs-target="#reportViolationModal">
+                    <i class="fas fa-flag me-1"></i> Report an Incident / Violation
+                </button>
+
+                <!-- Reports Filed by the Student -->
+                {% if reported_by_user %}
+                    <div class="pt-3 mt-3 border-top" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                        <h6 class="fw-bold small text-slate-700 mb-2">Reports You Submitted ({{ reported_by_user|length }})</h6>
+                        <div class="d-flex flex-column gap-2">
+                            {% for rep in reported_by_user %}
+                                <div class="p-2 rounded-2 small" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.7);">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-semibold text-slate-800">{{ rep.student.full_name }}</span>
+                                        <span class="badge bg-danger-soft">{{ rep.date_committed|date:"M d" }}</span>
+                                    </div>
+                                    <span class="text-muted d-block text-truncate">{{ rep.description }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
-
-<!-- Announcements -->
-<div class="dashboard-card mb-4">
-
-<h5 class="fw-bold mb-3">
-<i class="fas fa-bullhorn me-2 text-success"></i>Announcements
-</h5>
-
-{% if announcements %}
-
-{% for announcement in announcements %}
-
-<div class="mb-3">
-
-<h6 class="fw-bold">{{ announcement.title }}</h6>
-
-<p class="text-muted small">
-{{ announcement.content|truncatewords:20 }}
-</p>
-
-<small class="text-muted">
-<i class="fas fa-calendar me-1"></i>
-{{ announcement.date_posted|date:"M d, Y" }}
-</small>
-
+<!-- REPORT VIOLATION MODAL -->
+<div class="modal fade" id="reportViolationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-wrapper mb-0" style="width: 32px; height: 32px; font-size: 0.9rem; background: rgba(239,68,68,0.1); color: #dc2626;">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold text-slate-900">Report an Incident or Violation</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="submit_violation" value="1">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Resident / Roommate Involved</label>
+                        {{ violation_form.student }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-slate-700">Infraction Description</label>
+                        {{ violation_form.description }}
+                        <div class="form-text small text-muted mt-1">
+                            Provide details regarding the infraction (noise, cleanliness, unauthorized guests, etc.). Management will review this report confidentially.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-soft-danger px-4">
+                        <i class="fas fa-paper-plane me-1"></i> Submit Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-{% if not forloop.last %}<hr>{% endif %}
-
-{% endfor %}
-
-{% else %}
-
-<p class="text-muted mb-0">No new announcements.</p>
-
-{% endif %}
-
-</div>
-
-</div>
-
-
-<!-- SIDEBAR -->
-<div class="col-md-4">
-
-
-
-<!-- Payment Status -->
-<div class="dashboard-card mb-4 text-center">
-
-<h5 class="fw-bold mb-3">
-<i class="fas fa-dollar-sign me-2 text-success"></i>Payment Status
-</h5>
-
-<p class="mb-2 text-muted">Your current status is:</p>
-
-<span class="badge fs-6 px-3 py-2
-{% if user.payment_status == 'paid' %}bg-success-soft
-{% elif user.payment_status == 'pending' %}bg-warning-soft
-{% else %}bg-danger-soft{% endif %}">
-
-{{ payment_status }}
-
-</span>
-
-</div>
-
-
-<!-- Violations -->
-<div class="dashboard-card">
-
-<h5 class="fw-bold mb-3">
-<i class="fas fa-exclamation-triangle me-2 text-danger"></i>Violation Records
-</h5>
-
-{% if user_violations %}
-
-<ul class="list-group list-group-flush">
-
-{% for violation in user_violations %}
-
-<li class="list-group-item">
-
-<strong>{{ violation.description }}</strong><br>
-
-<small class="text-muted">
-<i class="fas fa-calendar me-1"></i>
-{{ violation.date_committed|date:"M d, Y" }}
-</small>
-
-</li>
-
-{% endfor %}
-
-</ul>
-
-{% else %}
-
-<p class="text-center text-muted mb-0">
-No violations on record.
-</p>
-
-{% endif %}
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+<script>
+    // Style Django Form inputs on the fly for consistency
+    document.querySelectorAll('.glass-card input, .glass-card textarea, .glass-card select').forEach(function(el) {
+        el.classList.add('form-control');
+    });
+</script>
 {% endblock %}

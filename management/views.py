@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Announcement, Violation, CleaningGroup, CleaningSchedule, Request
-from .forms import AnnouncementForm, ViolationForm, PaymentStatusForm, DormMasterProfileForm, DormMasterProfilePictureForm, CleaningGroupForm, CleaningScheduleForm
+from .forms import AnnouncementForm, ViolationForm, PaymentStatusForm, DormMasterProfileForm, DormMasterProfilePictureForm, CleaningGroupForm, CleaningScheduleForm, ResidentEditForm
+from users.models import EmergencyContact
+from users.forms import EmergencyContactForm
 from django.db.models import Count, Q
 from rooms.models import Room, AssignmentRequest, Occupancy
 from rooms.forms import RoomForm
@@ -60,20 +62,55 @@ def manage_violations_view(request):
     if request.method == 'POST':
         form = ViolationForm(request.POST)
         if form.is_valid():
-            violation = form.save()
+            violation = form.save(commit=False)
+            # Staff-logged violations are pre-approved (no review needed)
+            violation.status = 'approved'
+            violation.reviewed_by = request.user
+            violation.save()
             messages.success(request, f'Violation has been recorded for {violation.student.full_name}.')
             return redirect('management:manage_violations')
     else:
         form = ViolationForm()
 
-    violations = Violation.objects.all().order_by('-date_committed')
+    # Confirmed violations (approved)
+    violations = Violation.objects.filter(status='approved').order_by('-date_committed')
+    # Pending student reports awaiting review
+    pending_reports = Violation.objects.filter(status='pending').order_by('-date_committed')
     all_students = User.objects.filter(is_staff=False)
     context = {
         'form': form,
         'violations': violations,
+        'pending_reports': pending_reports,
         'all_students': all_students,
     }
     return render(request, 'manage_violations.html', context)
+
+@login_required
+@user_passes_test(is_staff)
+def approve_violation_view(request, violation_id):
+    """Dorm master approves a student-submitted violation report."""
+    violation = get_object_or_404(Violation, id=violation_id)
+    if request.method == 'POST':
+        violation.status = 'approved'
+        violation.reviewed_by = request.user
+        violation.review_note = request.POST.get('review_note', '').strip()
+        violation.save()
+        messages.success(request, f"Violation report for {violation.student.full_name} has been approved and recorded.")
+    return redirect('management:manage_violations')
+
+@login_required
+@user_passes_test(is_staff)
+def reject_violation_view(request, violation_id):
+    """Dorm master rejects / dismisses a student-submitted violation report."""
+    violation = get_object_or_404(Violation, id=violation_id)
+    if request.method == 'POST':
+        violation.status = 'rejected'
+        violation.reviewed_by = request.user
+        violation.review_note = request.POST.get('review_note', '').strip()
+        violation.save()
+        messages.info(request, f"Violation report for {violation.student.full_name} has been rejected.")
+    return redirect('management:manage_violations')
+
 
 @login_required
 @user_passes_test(is_staff)
@@ -185,6 +222,34 @@ def manage_residents_view(request):
 
 @login_required
 @user_passes_test(is_staff)
+def edit_resident_view(request, resident_id):
+    resident = get_object_or_404(User, id=resident_id, is_staff=False)
+    emergency_contact, _ = EmergencyContact.objects.get_or_create(user=resident)
+
+    if request.method == 'POST':
+        resident_form = ResidentEditForm(request.POST, request.FILES, instance=resident)
+        emergency_form = EmergencyContactForm(request.POST, instance=emergency_contact)
+        if resident_form.is_valid() and emergency_form.is_valid():
+            resident_form.save()
+            emergency_form.save()
+            messages.success(request, f'Resident profile for {resident.full_name} has been updated successfully.')
+            return redirect('management:manage_residents')
+        else:
+            messages.error(request, 'Please correct the errors in the form.')
+    else:
+        resident_form = ResidentEditForm(instance=resident)
+        emergency_form = EmergencyContactForm(instance=emergency_contact)
+
+    context = {
+        'resident': resident,
+        'resident_form': resident_form,
+        'emergency_form': emergency_form,
+    }
+    return render(request, 'edit_resident.html', context)
+
+
+@login_required
+@user_passes_test(is_staff)
 def manage_requests_view(request):
     assignment_requests = AssignmentRequest.objects.filter(status='pending').select_related('student', 'room')
     general_requests = Request.objects.filter(status='pending').select_related('student')
@@ -264,30 +329,7 @@ def deny_request_view(request, request_id):
 @login_required
 @user_passes_test(is_staff)
 def manage_account_view(request):
-    user = request.user
-    profile_form = DormMasterProfileForm(instance=user)
-    picture_form = DormMasterProfilePictureForm(instance=user)
-
-    if request.method == 'POST':
-        if 'update_profile' in request.POST:
-            profile_form = DormMasterProfileForm(request.POST, instance=user)
-            if profile_form.is_valid():
-                profile_form.save()
-                messages.success(request, 'Your profile has been updated successfully.')
-                return redirect('management:manage_account')
-
-        if 'update_picture' in request.POST:
-            picture_form = DormMasterProfilePictureForm(request.POST, request.FILES, instance=user)
-            if picture_form.is_valid():
-                picture_form.save()
-                messages.success(request, 'Your profile picture has been updated successfully.')
-                return redirect('management:manage_account')
-
-    context = {
-        'profile_form': profile_form,
-        'picture_form': picture_form,
-    }
-    return render(request, 'management_accounts.html', context)
+    return redirect('management:management_dashboard')
 
 @login_required
 @user_passes_test(is_staff)

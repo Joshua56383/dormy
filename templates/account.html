@@ -1,258 +1,251 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Account Details | dormY{% endblock %}
+{% block title %}Account Settings | dormY{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container-fluid px-0">
 
-<style>
-.page-title{
-    font-weight:700;
-    margin-bottom:30px;
-}
+    <!-- PAGE HEADER -->
+    <div class="glass-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" class="rounded-circle me-3 shadow-sm border border-2 border-white" alt="Profile Picture" width="70" height="70" style="object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-white text-primary shadow-sm" style="width: 70px; height: 70px; font-size: 1.75rem;">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <h2 class="fw-bold mb-1 text-white">{{ user.full_name }}</h2>
+                    <p class="text-white-50 mb-0 small">Student ID: <span class="badge bg-white text-primary fw-bold">{{ user.student_id|default:user.username }}</span></p>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-light shadow-sm fw-semibold text-primary" data-bs-toggle="modal" data-bs-target="#accountSettingsModal">
+                    <i class="fas fa-user-edit me-1"></i> Edit Account Settings
+                </button>
+            </div>
+        </div>
+    </div>
 
-.dashboard-card{
-    background:#ffffff;
-    border-radius:14px;
-    padding:25px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
-    transition:0.3s;
-}
+    <div class="row g-4">
+        <!-- LEFT COLUMN: Profile summary, cleaning group, violations -->
+        <div class="col-lg-4">
 
-.dashboard-card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 10px 25px rgba(0,0,0,0.12);
-}
+            <!-- Cleaning Group Card -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(37,99,235,0.1); color: #2563eb;">
+                        <i class="fas fa-broom"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-slate-900">Cleaning Duty Team</h5>
+                </div>
 
-.profile-img{
-    border:4px solid #f1f1f1;
-}
+                {% if cleaning_group %}
+                    <div class="p-3 rounded-3 mb-3" style="background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.15);">
+                        <span class="text-muted small">Assigned Team</span>
+                        <h6 class="fw-bold text-primary mb-0">{{ cleaning_group.name }}</h6>
+                    </div>
+                    <label class="small fw-semibold text-slate-700 mb-2">Team Members</label>
+                    <ul class="list-group list-group-flush rounded-3" style="background: transparent;">
+                        {% for member in cleaning_group.members.all %}
+                        <li class="list-group-item d-flex align-items-center px-0 bg-transparent" style="border-color: rgba(226, 232, 240, 0.6);">
+                            <div class="rounded-circle me-2 avatar-placeholder" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="small text-slate-800">{{ member.first_name }} {{ member.last_name }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item px-0 bg-transparent text-muted small">No other members listed.</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted small mb-0">You are not currently assigned to a cleaning group.</p>
+                {% endif %}
+            </div>
 
-.card-title{
-    border-bottom:1px solid #eee;
-    padding-bottom:10px;
-}
+            <!-- Violations Card -->
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(239,68,68,0.1); color: #dc2626;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-slate-900">Conduct Violations</h5>
+                </div>
 
-.list-group-item{
-    border:none;
-    border-bottom:1px solid #f1f1f1;
-}
+                {% if violations %}
+                    <div class="d-flex flex-column gap-2">
+                        {% for violation in violations %}
+                        <div class="p-3 rounded-3" style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <span class="badge bg-danger-soft">
+                                    <i class="fas fa-gavel me-1"></i> Official Record
+                                </span>
+                                <small class="text-muted">
+                                    {{ violation.date_committed|date:"M d, Y" }}
+                                </small>
+                            </div>
+                            <p class="fw-semibold text-danger mb-0 small">{{ violation.description }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-award text-success fs-3 mb-2"></i>
+                        <h6 class="fw-semibold text-slate-800 mb-0">Clean Record</h6>
+                        <p class="text-muted small mb-0">No confirmed violations on your file.</p>
+                    </div>
+                {% endif %}
+            </div>
 
-.list-group-item:last-child{
-    border-bottom:none;
-}
+        </div>
 
-.btn-primary{
-    border-radius:8px;
-    padding:8px 18px;
-}
+        <!-- RIGHT COLUMN: Account Information Overview with Pop-up Trigger -->
+        <div class="col-lg-8">
 
-form input, form select{
-    border-radius:8px !important;
-}
-</style>
+            <!-- Academic & Identity Records (Permanent) -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(16,185,129,0.1); color: #059669;">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Academic & Identity Records</h5>
+                    </div>
+                    <span class="badge bg-success-soft"><i class="fas fa-lock me-1"></i> Verified</span>
+                </div>
 
-<h2 class="page-title">My Account</h2>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="small text-muted mb-0">Student ID</label>
+                        <div class="fw-bold text-slate-900">{{ user.student_id|default:"N/A" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="small text-muted mb-0">Full Name</label>
+                        <div class="fw-bold text-slate-900">{{ user.full_name }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="small text-muted mb-0">Degree Course</label>
+                        <div class="fw-bold text-slate-900">{{ user.course|default:'N/A' }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="small text-muted mb-0">Year Level</label>
+                        <div class="fw-bold text-slate-900">{{ user.year_level|default:'N/A' }}</div>
+                    </div>
+                </div>
+            </div>
 
-<div class="row">
+            <!-- Profile & Contact Information Overview -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(37,99,235,0.1); color: #2563eb;">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Profile & Contact Details</h5>
+                    </div>
+                    <button type="button" class="btn btn-soft-primary btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                        <i class="fas fa-edit me-1"></i> Edit in Pop-up
+                    </button>
+                </div>
 
-<div class="col-lg-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="small text-muted mb-0">Email Address</label>
+                        <div class="fw-bold text-slate-900">{{ user.email|default:"Not provided" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="small text-muted mb-0">Contact Number</label>
+                        <div class="fw-bold text-slate-900">{{ user.contact_number|default:"Not provided" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="small text-muted mb-0">Profile Picture</label>
+                        <div class="text-slate-800 small mt-1">
+                            {% if user.profile_picture %}
+                                <span class="badge bg-success-soft"><i class="fas fa-check-circle me-1"></i> Custom photo uploaded</span>
+                            {% else %}
+                                <span class="badge bg-secondary-soft"><i class="fas fa-info-circle me-1"></i> Default avatar</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="small text-muted mb-0">Account Role</label>
+                        <div class="text-slate-800 small mt-1">
+                            <span class="badge bg-primary-soft">{{ user.get_role_display|default:"Student Resident" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<div class="dashboard-card text-center mb-4">
+            <!-- Emergency Contact Overview -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(14,165,233,0.1); color: #0284c7;">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Emergency Contact</h5>
+                    </div>
+                    <button type="button" class="btn btn-soft-primary btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                        <i class="fas fa-phone-alt me-1"></i> {% if contact_instance %}Update Contact{% else %}Add Contact{% endif %}
+                    </button>
+                </div>
 
-<img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}" 
-alt="Profile Picture"
-class="img-fluid rounded-circle mb-3 profile-img"
-style="width:150px;height:150px;object-fit:cover;">
+                {% if contact_instance and contact_instance.contact_name %}
+                    <div class="row g-3">
+                        <div class="col-sm-4">
+                            <label class="small text-muted mb-0">Contact Name</label>
+                            <div class="fw-bold text-slate-900">{{ contact_instance.contact_name }}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="small text-muted mb-0">Relationship</label>
+                            <div class="fw-bold text-slate-900">{{ contact_instance.relationship|default:"Guardian" }}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="small text-muted mb-0">Phone Number</label>
+                            <div class="fw-bold text-slate-900">{{ contact_instance.phone_number }}</div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="fas fa-phone-slash opacity-25 fs-4 mb-2 d-block"></i>
+                        <p class="small mb-2">No emergency contact registered yet.</p>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                            <i class="fas fa-plus me-1"></i> Add Emergency Contact
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
 
-<h5 class="fw-bold mb-1">{{ user.full_name }}</h5>
-<p class="text-muted">{{ user.student_id }}</p>
+            <!-- Security & Password Overview -->
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(226, 232, 240, 0.7) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon-wrapper mb-0" style="width: 36px; height: 36px; font-size: 1rem; background: rgba(245,158,11,0.1); color: #d97706;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-slate-900">Security & Authentication</h5>
+                    </div>
+                    <button type="button" class="btn btn-soft-warning btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                        <i class="fas fa-key me-1"></i> Change Password
+                    </button>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2);">
+                    <div>
+                        <span class="badge bg-warning-soft text-warning mb-1"><i class="fas fa-lock me-1"></i> Password Protected</span>
+                        <div class="small text-muted">Password credentials are active and encrypted. You can change your password anytime using the pop-up form.</div>
+                    </div>
+                    <button type="button" class="btn btn-outline-warning btn-sm ms-3 text-nowrap" data-bs-toggle="modal" data-bs-target="#accountSettingsModal">
+                        Change Password
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
 </div>
-
-
-<div class="dashboard-card mb-4">
-
-<h5 class="card-title fw-bold mb-4">
-<i class="fas fa-users me-2 text-primary"></i>My Cleaning Group
-</h5>
-
-{% if cleaning_group %}
-<p><strong>Group:</strong> {{ cleaning_group.name }}</p>
-
-<p class="mb-1"><strong>Members:</strong></p>
-
-<ul class="list-group list-group-flush">
-
-{% for member in cleaning_group.members.all %}
-<li class="list-group-item px-0">
-<i class="fas fa-user me-2 text-secondary"></i>
-{{ member.first_name }} {{ member.last_name }}
-</li>
-{% empty %}
-<li class="list-group-item px-0">No members in this group.</li>
-{% endfor %}
-
-</ul>
-
-{% else %}
-
-<p class="text-muted">You are not currently assigned to a cleaning group.</p>
-
-{% endif %}
-
-</div>
-
-
-
-<div class="dashboard-card mb-4">
-
-<h5 class="card-title fw-bold mb-4">
-<i class="fas fa-exclamation-triangle me-2 text-danger"></i>Violation Records
-</h5>
-
-{% if violations %}
-
-<ul class="list-group list-group-flush">
-
-{% for violation in violations %}
-<li class="list-group-item px-0">
-
-<strong>{{ violation.description }}</strong><br>
-
-<small class="text-muted">
-<i class="fas fa-calendar me-1"></i>
-Committed on: {{ violation.date_committed|date:"M d, Y" }}
-</small>
-
-</li>
-{% endfor %}
-
-</ul>
-
-{% else %}
-
-<p class="text-muted">You have no violation records. Keep up the good work!</p>
-
-{% endif %}
-
-</div>
-
-</div>
-
-
-
-<div class="col-lg-8">
-
-<div class="dashboard-card mb-4">
-
-<h5 class="card-title fw-bold mb-4">
-<i class="fas fa-user-shield me-2 text-success"></i>Your Permanent Information
-</h5>
-
-<div class="row">
-
-<div class="col-md-6 mb-3">
-<p class="mb-0"><strong>Student ID:</strong></p>
-<p class="text-muted">{{ user.student_id }}</p>
-</div>
-
-<div class="col-md-6 mb-3">
-<p class="mb-0"><strong>Full Name:</strong></p>
-<p class="text-muted">{{ user.full_name }}</p>
-</div>
-
-<div class="col-md-6">
-<p class="mb-0"><strong>Course:</strong></p>
-<p class="text-muted">{{ user.course|default:'N/A' }}</p>
-</div>
-
-<div class="col-md-6">
-<p class="mb-0"><strong>Year Level:</strong></p>
-<p class="text-muted">{{ user.year_level|default:'N/A' }}</p>
-</div>
-
-</div>
-
-</div>
-
-
-
-<div class="dashboard-card mb-4">
-
-<h5 class="card-title fw-bold mb-4">
-<i class="fas fa-user-edit me-2 text-primary"></i>Update Your Information
-</h5>
-
-<form method="post" enctype="multipart/form-data" action="{% url 'users:account' %}">
-{% csrf_token %}
-
-<div class="mb-3">
-<label for="id_profile_picture" class="form-label"><strong>Profile Picture</strong></label>
-{{ profile_form.profile_picture }}
-</div>
-
-<div class="mb-3">
-<label for="id_email" class="form-label"><strong>Email Address</strong></label>
-{{ profile_form.email }}
-</div>
-
-<div class="mb-3">
-<label for="id_contact_number" class="form-label"><strong>Contact Number</strong></label>
-{{ profile_form.contact_number }}
-</div>
-
-<button type="submit" name="update_profile" class="btn btn-primary">
-    <i class="fas fa-save me-1"></i> Update Profile
-</button>
-
-</form>
-
-</div>
-
-
-<div class="dashboard-card mb-4">
-
-<h5 class="card-title fw-bold mb-4">
-<i class="fas fa-address-book me-2 text-info"></i>Emergency Contact Information
-</h5>
-
-<form method="post" action="{% url 'users:account' %}">
-{% csrf_token %}
-{{ emergency_contact_form.as_p }}
-
-<button type="submit" name="update_emergency_contact" class="btn btn-primary">
-<i class="fas fa-save me-1"></i> Save Contact
-</button>
-
-</form>
-
-</div>
-
-
-
-<div class="dashboard-card">
-
-<h5 class="card-title fw-bold mb-4">
-<i class="fas fa-key me-2 text-warning"></i>Change Password
-</h5>
-
-<form method="post" action="{% url 'users:account' %}">
-{% csrf_token %}
-{{ password_form.as_p }}
-
-<button type="submit" name="change_password" class="btn btn-primary">
-<i class="fas fa-lock me-1"></i> Change Password
-</button>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
 {% endblock %}
